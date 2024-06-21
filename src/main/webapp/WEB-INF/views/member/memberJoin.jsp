@@ -82,6 +82,7 @@
 			}
 			
 			// 전송전에 파일에 관련된 사항들을 체크해준다.
+			/*
 			let fName = document.getElementById("file").value;
 			if(fName.trim() != "") {
 				let ext = fName.substring(fName.lastIndexOf(".")+1).toLowerCase();
@@ -98,7 +99,8 @@
 				}
 			}
 			else return false;			
-    	
+    	*/
+			
 			// 아이디/닉네임 중복체크
     	if(idCheckSw == 0) {
     		alert("아이디 중복체크버튼을 눌러주세요");
@@ -129,7 +131,7 @@
     		idCheckSw = 1;
     		
     		$.ajax({
-    			url  : "${ctp}/MemberIdCheck.mem",
+    			url  : "${ctp}/member/memberIdCheck",
     			type : "get",
     			data : {mid : mid},
     			success:function(res) {
@@ -158,7 +160,7 @@
     		nickCheckSw = 1;
     		
     		$.ajax({
-    			url  : "${ctp}/MemberNickCheck.mem",
+    			url  : "${ctp}/member/memberNickCheck",
     			type : "get",
     			data : {nickName : nickName},
     			success:function(res) {
@@ -203,7 +205,8 @@
 <jsp:include page="/WEB-INF/views/include/slide2.jsp" />
 <p><br/></p>
 <div class="container">
-  <form name="myform" method="post" action="${ctp}/MemberJoinOk.mem" class="was-validated" enctype="multipart/form-data">
+  <!-- <form name="myform" method="post" class="was-validated" enctype="multipart/form-data"> -->
+  <form name="myform" method="post" class="was-validated">
     <h2>회 원 가 입</h2>
     <br/>
     <div class="form-group">
@@ -379,7 +382,7 @@
     </div>
     <button type="button" class="btn btn-secondary" onclick="fCheck()">회원가입</button> &nbsp;
     <button type="reset" class="btn btn-secondary">다시작성</button> &nbsp;
-    <button type="button" class="btn btn-secondary" onclick="location.href='${ctp}/MemberLogin.mem';">돌아가기</button>
+    <button type="button" class="btn btn-secondary" onclick="location.href='${ctp}/member/memberLogin';">돌아가기</button>
     
     <input type="hidden" name="email" />
     <input type="hidden" name="tel" />
