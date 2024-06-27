@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <c:set var="ctp" value="${pageContext.request.contextPath}" />
 <%
+/*
 	// 로그인창에 아이디 체크 유무에 대한 처리
 	// 쿠키를 검색해서 cMid가 있을때 가져와서 아이디입력창에 뿌릴수 있게 한다.
 	Cookie[] cookies = request.getCookies();
@@ -14,6 +15,7 @@
 			}
 		}
 	}
+*/
 %>
 <!DOCTYPE html>
 <html>
@@ -54,6 +56,7 @@
     		success:function(res) {
     			if(res != "0") alert("새로운 비밀번호가 회원님 메일로 발송 되었습니다.\n메일주소를 확인하세요.");
     			else alert("등록하신 정보가 일치하지 않습니다.\n확인후 다시 처리하세요.");
+  				location.reload();
     		},
     		error : function() {
     			alert("전송오류!!")
@@ -117,7 +120,7 @@
   	  </tr>
   	  <tr>
   	    <td colspan="2" class="text-center">
-  	      <input type="button" value="새비밀번호발급" onclick="newPassword()" class="form-control" placeholder="메일주소를 입력하세요"/>
+  	      <input type="button" value="새비밀번호발급" onclick="newPassword()" class="btn btn-secondary form-control" placeholder="메일주소를 입력하세요"/>
   	    </td>
   	  </tr>
   	</table>

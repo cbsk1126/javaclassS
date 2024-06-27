@@ -24,7 +24,9 @@
     	let regMid = /^[a-zA-Z0-9_]{4,20}$/;	// 아이디는 4~20의 영문 대/소문자와 숫자와 밑줄 가능
       let regNickName = /^[가-힣0-9_]+$/;					// 닉네임은 한글, 숫자, 밑줄만 가능
       let regName = /^[가-힣a-zA-Z]+$/;				// 이름은 한글/영문 가능
-    	
+      let regEmail =/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+      let regURL = /^(https?:\/\/)?([a-z\d\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/;
+    	let regTel = /\d{2,3}-\d{3,4}-\d{4}$/g;
     	
     	// 검사를 끝내고 필요한 내역들을 변수에 담아 회원가입처리한다.
     	let mid = myform.mid.value.trim();
@@ -36,16 +38,21 @@
     	let email2 = myform.email2.value;
     	let email = email1 + "@" + email2;
     	
+    	let homePage = myform.homePage.value;
+    	
     	let tel1 = myform.tel1.value;
     	let tel2 = myform.tel2.value.trim();
     	let tel3 = myform.tel3.value.trim();
     	let tel = tel1 + "-" + tel2 + "-" + tel3;
     	
+    	// 전송전에 '주소'를 하나로 묶어서 전송처리 준비한다.
     	let postcode = myform.postcode.value + " ";
     	let roadAddress = myform.roadAddress.value + " ";
     	let detailAddress = myform.detailAddress.value + " ";
     	let extraAddress = myform.extraAddress.value + " ";
     	let address = postcode + "/" + roadAddress + "/" + detailAddress + "/" + extraAddress;
+    	
+    	let submitFlag = 0;		// 체크 완료를 체크하기위한 변수.. 체크완료되면 submitFlag=1 이 된다.
     	
     	if(!regMid.test(mid)) {
     		alert("아이디는 4~20자리의 영문 소/대문자와 숫자, 언더바(_)만 사용가능합니다.");
@@ -67,22 +74,41 @@
         myform.name.focus();
         return false;
       }
-			// 이메일 주소형식체크
-			
-			// 홈페이지 주소형식체크
+      else if(!regEmail.test(email)) {
+        alert("이메일 형식에 맞지않습니다.");
+        myform.email1.focus();
+        return false;
+      }
+      else if((homePage != "http://" && homePage != "")) {
+        if(!regURL.test(homePage)) {
+	        alert("작성하신 홈페이지 주소가 URL 형식에 맞지않습니다.");
+	        myform.homePage.focus();
+	        return false;
+        }
+        else {
+	    	  submitFlag = 1;
+	      }
+      }
 			
 			// 전화번호 형식 체크
-			if(tel2 != "" && tel3 != "") {
-				// 전화번호 정규화 체크
-			}
-			else {
-				tel2 = " ";
-				tel3 = " ";
-				tel = tel1 + "-" + tel2 + "-" + tel3;
-			}
+    	if(tel2 != "" && tel3 != "") {
+    	  if(!regTel.test(tel)) {
+	    		alert("전화번호형식을 확인하세요.(000-0000-0000)");
+	    		myform.tel2.focus();
+	    		return false;
+    	  }
+    	  else {
+    		  submitFlag = 1;
+    	  }
+    	}
+    	else {		// 전화번호를 입력하지 않을시 DB에는 '010- - '의 형태로 저장하고자 한다.
+    		tel2 = " ";
+    		tel3 = " ";
+    		tel = tel1 + "-" + tel2 + "-" + tel3;
+    		submitFlag = 1;
+    	}
 			
 			// 전송전에 파일에 관련된 사항들을 체크해준다.
-			/*
 			let fName = document.getElementById("file").value;
 			if(fName.trim() != "") {
 				let ext = fName.substring(fName.lastIndexOf(".")+1).toLowerCase();
@@ -97,25 +123,29 @@
 					alert("업로드할 파일의 최대용량은 5MByte입니다.");
 					return false;
 				}
+				submitFlag == 1;
 			}
-			else return false;			
-    	*/
 			
-			// 아이디/닉네임 중복체크
-    	if(idCheckSw == 0) {
-    		alert("아이디 중복체크버튼을 눌러주세요");
-    		document.getElementById("midBtn").focus();
+			// 전송전에 모든 체크가 끝나면 submitFlag가 1로 되게된다. 이때 값들을 서버로 전송처리한다.
+			if(submitFlag == 1) {
+	    	if(idCheckSw == 0) {
+	    		alert("아이디 중복체크버튼을 눌러주세요");
+	    		document.getElementById("midBtn").focus();
+	    	}
+	    	else if(nickCheckSw == 0) {
+	    		alert("닉네임 중복체크버튼을 눌러주세요");
+	    		document.getElementById("nickNameBtn").focus();
+	    	}
+	    	else {
+	    		myform.email.value = email;
+	    		myform.tel.value = tel;
+	    		myform.address.value = address;
+	    		
+	    		myform.submit();
+	    	}
     	}
-    	else if(nickCheckSw == 0) {
-    		alert("닉네임 중복체크버튼을 눌러주세요");
-    		document.getElementById("nickNameBtn").focus();
-    	}
-    	else {
-    		myform.email.value = email;
-    		myform.tel.value = tel;
-    		myform.address.value = address;
-    		
-    		myform.submit();
+			else {
+    		alert("회원정보수정 실패~~ 폼의 내용을 확인하세요.");
     	}
     }
     
@@ -205,8 +235,7 @@
 <jsp:include page="/WEB-INF/views/include/slide2.jsp" />
 <p><br/></p>
 <div class="container">
-  <!-- <form name="myform" method="post" class="was-validated" enctype="multipart/form-data"> -->
-  <form name="myform" method="post" class="was-validated">
+  <form name="myform" method="post" class="was-validated" enctype="multipart/form-data">
     <h2>회 원 가 입</h2>
     <br/>
     <div class="form-group">
@@ -387,6 +416,7 @@
     <input type="hidden" name="email" />
     <input type="hidden" name="tel" />
     <input type="hidden" name="address" />
+    <!-- <input type="hidden" name="photo" /> -->
   </form>
 </div>
 <p><br/></p>

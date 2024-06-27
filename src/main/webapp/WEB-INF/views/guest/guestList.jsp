@@ -17,7 +17,7 @@
     }
   </style>
   <script>
-    'use strict';kms1234
+    'use strict';
     
     function delCheck(idx) {
     	let ans = confirm("현재 방문글을 삭제하시겠습니까?");

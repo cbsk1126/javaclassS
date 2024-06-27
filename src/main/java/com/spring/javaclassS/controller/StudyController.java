@@ -1,5 +1,6 @@
 package com.spring.javaclassS.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
@@ -238,5 +241,92 @@ public class StudyController {
 		
 		return "redirect:/message/mailSendOk";
 	}
+
+	// 파일 업로드 연습폼 호출하기
+	@RequestMapping(value = "/fileUpload/fileUpload", method = RequestMethod.GET)
+	public String fileUploadGet(HttpServletRequest request, Model model) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload");
+		
+		String[] files = new File(realPath).list();
+		
+		model.addAttribute("files", files);
+		model.addAttribute("fileCount", files.length);
+		
+		return "study/fileUpload/fileUpload";
+	}
 	
+	@RequestMapping(value = "/fileUpload/fileUpload", method = RequestMethod.POST)
+	public String fileUploadPost(MultipartFile fName, String mid) {
+		
+		int res = studyService.fileUpload(fName, mid);
+		
+		if(res != 0) return "redirect:/message/fileUploadOk";
+		else  return "redirect:/message/fileUploadNo";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/fileUpload/fileDelete", method = RequestMethod.POST)
+	public String fileDeletePost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload/");
+		
+		String res = "0";
+		File fName = new File(realPath + file);
+		
+		if(fName.exists()) {
+			fName.delete();
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/fileUpload/fileDeleteAll", method = RequestMethod.POST)
+	public String fileDeleteAllPost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/fileUpload/");
+		
+		String res = "0";
+		File targetFolder = new File(realPath);
+		if(!targetFolder.exists()) return "0";
+		
+		File[] files = targetFolder.listFiles();
+		
+		if(files.length != 0) {
+			for(File f : files) {
+				if(!f.isDirectory()) f.delete();
+			}
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@RequestMapping(value = "/fileUpload/multiFile", method = RequestMethod.GET)
+	public String multiFileGet() {
+		return "study/fileUpload/multiFile";
+	}
+	
+	@RequestMapping(value = "/fileUpload/multiFile", method = RequestMethod.POST)
+	public String multiFilePost(MultipartHttpServletRequest mFile) {
+		
+		int res = studyService.multiFileUpload(mFile);
+		
+		if(res != 0) return "redirect:/message/multiFileUploadOk";
+		else return "redirect:/message/multiFileUploadNo";
+	}
+	
+	@RequestMapping(value = "/fileUpload/multiFile2", method = RequestMethod.GET)
+	public String multiFile2Get() {
+		return "study/fileUpload/multiFile2";
+	}
+	
+	@RequestMapping(value = "/fileUpload/multiFile2", method = RequestMethod.POST)
+	public String multiFile2Post(MultipartHttpServletRequest mFile, HttpServletRequest request, String imgNames) {
+		//String[] imgNames = request.getParameter("imgNames").split("/");
+		
+		int res = studyService.multiFileUpload(mFile);
+		
+		if(res != 0) return "redirect:/message/multiFileUploadOk";
+		else return "redirect:/message/multiFileUploadNo";
+	}
 }
