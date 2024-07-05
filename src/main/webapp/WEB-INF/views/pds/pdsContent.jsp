@@ -330,14 +330,12 @@
 		  <c:set var="ext" value="${fn:substring(fSName, len-3, len)}"/>
 		  <c:set var="extLower" value="${fn:toLowerCase(ext)}"/>
 			<c:if test="${extLower == 'jpg' || extLower == 'gif' || extLower == 'png'}">
-        <img src="${ctp}/pds/${fSName}" width="85%" />
+        <img src="${ctp}/resources/data/pds/${fSName}" width="85%" />
       </c:if>
       <hr/>
     </c:forEach>
   </div>
   
-  <!-- 위로가기 버튼 -->
-  <h6 id="topBtn" class="text-right mr-3"><img src="${ctp}/images/arrowTop.gif" title="위로이동"/></h6>
 </div>
 <p><br/></p>
 
@@ -379,5 +377,7 @@
   </div>
 
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />
+<!-- 위로가기 버튼 -->
+<h6 id="topBtn" class="text-right mr-3"><img src="${ctp}/images/arrowTop.gif" title="위로이동"/></h6>
 </body>
 </html>

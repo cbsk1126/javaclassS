@@ -57,6 +57,32 @@
     		}
     	});
     }
+    
+    // 상세내역 모달로 보기
+    function modalView(title,nickName,fDate,part,fName,fSName,fSize,downNum) {
+    	fDate = fDate.substring(0,19);
+    	fSize = parseInt(fSize / 1024) + "KByte";
+    	let imgFiles = fSName.split("/");
+    	
+    	//$("#myInforModal").on("show.bs.modal", function(e) {
+    		$(".modal-header #title").html(title);
+    		$(".modal-header #part").html(part);
+    		$(".modal-body #nickName").html(nickName);
+    		$(".modal-body #fDate").html(fDate);
+    		$(".modal-body #fSize").html(fSize);
+    		//$(".modal-body #fSName").html(fSName);
+    		$(".modal-body #downNum").html(downNum);
+    	//});
+    	
+    	//$(".modal-body #imgSrc").attr("src","");
+    	for(let i=0; i<imgFiles.length; i++) {
+    		let imgExt = imgFiles[i].substring(imgFiles[i].lastIndexOf(".")+1).toLowerCase();
+    		if(imgExt=='jpg' || imgExt=='gif' || imgExt=='png') {
+    			$(".modal-body #imgSrc").attr("src","${ctp}/resources/data/pds/"+imgFiles[i]);
+    		}
+    	}
+    }
+
   </script>
 </head>
 <body>
@@ -114,7 +140,7 @@
           <c:set var="fNames" value="${fn:split(vo.FName,'/')}"/>
           <c:set var="fSNames" value="${fn:split(vo.FSName,'/')}"/>
           <c:forEach var="fName" items="${fNames}" varStatus="st">
-            <a href="${ctp}/pds/${fSNames[st.index]}" download="${fName}" onclick="downNumCheck(${vo.idx})">${fName}</a><br/>
+            <a href="${ctp}/resources/data/pds/${fSNames[st.index]}" download="${fName}" onclick="downNumCheck(${vo.idx})">${fName}</a><br/>
           </c:forEach>
           (<fmt:formatNumber value="${vo.FSize/1024}" pattern="#,##0" />KByte)
         </td>
@@ -123,7 +149,8 @@
           <c:if test="${vo.mid == sMid || sLevel == 0}">
             <a href="javascript:pdsDeleteCheck('${vo.idx}','${vo.FSName}')" class="badge badge-danger">삭제</a><br/>
           </c:if>
-          <a href="PdsTotalDown.pds?idx=${vo.idx}" class="badge badge-primary">전체파일다운</a>
+          <a href="pdsTotalDown?idx=${vo.idx}" class="badge badge-primary">전체파일다운</a><br/>
+          <a href="#" onclick="modalView('${vo.title}','${vo.nickName}','${vo.FDate}','${vo.part}','${vo.FName}','${vo.FSName}','${vo.FSize}','${vo.downNum}')" class="badge badge-success" data-toggle="modal" data-target="#myInforModal">상세보기</a>
         </td>
       </tr>
       <c:set var="curScrStartNo" value="${curScrStartNo - 1}"/>
@@ -147,5 +174,31 @@
 	</div>
 	<!-- 블록페이지 끝 -->
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />
+<!-- The Modal -->
+<div class="modal fade" id="myInforModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-sm">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5><span id="title"></span>(분류:<span id="part"></span>)</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div>올린이 : <span id="nickName"></span></div>
+        <div>올린날짜 : <span id="fDate"></span></div>
+        <div>파일크기 : <span id="fSize"></span></div>
+        <div>다운횟수 : <span id="downNum"></span></div>
+        <hr/>
+        - 저장된파일명 : <span id="fSName"></span><br/>
+        <img id="imgSrc" width="265px"/><br/>
+      </div>
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

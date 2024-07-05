@@ -16,15 +16,16 @@
     let idCheckSw = 0;
     let nickCheckSw = 0;
     
+  	// 정규식을 이용한 유효성검사처리.....
+  	let regMid = /^[a-zA-Z0-9_]{4,20}$/;	// 아이디는 4~20의 영문 대/소문자와 숫자와 밑줄 가능
+    let regNickName = /^[가-힣0-9_]+$/;					// 닉네임은 한글, 숫자, 밑줄만 가능
+    let regName = /^[가-힣a-zA-Z]+$/;				// 이름은 한글/영문 가능
+    let regEmail =/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+    
     function fCheck() {
     	// 유효성 검사.....
     	// 아이디,닉네임,성명,이메일,홈페이지,전화번호,비밀번호 등등....
     	
-    	// 정규식을 이용한 유효성검사처리.....
-    	let regMid = /^[a-zA-Z0-9_]{4,20}$/;	// 아이디는 4~20의 영문 대/소문자와 숫자와 밑줄 가능
-      let regNickName = /^[가-힣0-9_]+$/;					// 닉네임은 한글, 숫자, 밑줄만 가능
-      let regName = /^[가-힣a-zA-Z]+$/;				// 이름은 한글/영문 가능
-      let regEmail =/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
       let regURL = /^(https?:\/\/)?([a-z\d\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/;
     	let regTel = /\d{2,3}-\d{3,4}-\d{4}$/g;
     	
@@ -228,6 +229,95 @@
     		reader.readAsDataURL(e.files[0]);
     	}
     }
+    
+    // 이메일 인증번호 받기
+    function emailCertification() {
+    	let mid = myform.mid.value.trim();
+    	let pwd = myform.pwd.value;
+    	let nickName = myform.nickName.value;
+    	let name = myform.name.value;
+    	let email1 = myform.email1.value.trim();
+    	let email2 = myform.email2.value;
+    	let email = email1 + "@" + email2;
+    	
+    	if(!regMid.test(mid)) {
+    		alert("아이디는 4~20자리의 영문 소/대문자와 숫자, 언더바(_)만 사용가능합니다.");
+    		myform.mid.focus();
+    		return false;
+    	}
+    	else if(pwd.trim() == "") {
+        alert("비밀번호는 1개이상의 문자와 특수문자 조합의 6~24 자리로 작성해주세요.");
+        myform.pwd.focus();
+        return false;
+      }
+      else if(!regNickName.test(nickName)) {
+        alert("닉네임은 한글만 사용가능합니다.");
+        myform.nickName.focus();
+        return false;
+      }
+      else if(!regName.test(name)) {
+        alert("성명은 한글과 영문대소문자만 사용가능합니다.");
+        myform.name.focus();
+        return false;
+      }
+      else if(!regEmail.test(email)) {
+        alert("이메일 형식에 맞지않습니다.");
+        myform.email1.focus();
+        return false;
+      }
+      
+    	let spin = "<div class='text-center'><div class='spinner-border text-muted'></div> 메일 발송중입니다. 잠시만 기다려주세요 <div class='spinner-border text-muted'></div></div>";
+      $("#demoSpin").html(spin);
+      
+      $.ajax({
+    	  url  : "${ctp}/member/memberEmailCheck",
+    	  type : "post",
+    	  data : {email : email},
+    	  success:function(res) {
+    		  if(res == 1) {
+    			  alert("인증번호가 발송되었습니다.\n메일확인후 인증번호를 입력해주세요.");
+    			  let str = '<div class="input-group">';
+    			  str += '<input type="text" name="checkKey" id="checkKey" class="form-control"/>';
+    			  str += '<div class="input-group-append">';
+    		    str += '<input type="button" value="인증번호확인" onclick="emailCertificationOk()"/>';
+    			  str += '</div>';
+    			  str += '</div>';
+    			  $("#demoSpin").html(str);
+    		  }
+    		  else alert("인증확인버튼을 다시 눌러주세요!");
+    	  },
+    	  error : function() {
+    		  alert("전송오류!");
+    	  }
+      });
+    }
+    
+    function emailCertificationOk() {
+    	let checkKey = $("#checkKey").val();
+    	if(checkKey.trim() == "") {
+    		alert("전송받은 메일에서 인증받은 키를 입력하세요");
+    		$("#checkKey").focus();
+    		return false;
+    	}
+    	
+    	$.ajax({
+    		url  : "${ctp}/member/memberEmailCheckOk",
+      	  type : "post",
+      	  data : {checkKey : checkKey},
+      	  success:function(res) {
+      		  if(res == "1") {
+	      			$("#demoSpin").hide();
+	      			$("#certificationBtn").hide();
+	      			$("#addContent").show();
+	      			$("#fCheckBtn").show();
+      		  }
+      		else alert("인증번호 오류~~ 메일을 통해서 발급받은 인증번호를 확인하세요.");
+      	  },
+      	  error : function() {
+      		  alert("전송오류!");
+      	  }
+    	});
+    }
   </script>
 </head>
 <body>
@@ -256,162 +346,168 @@
     </div>
     <div class="form-group">
       <label for="email1">Email address:</label>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Email을 입력하세요." id="email1" name="email1" required />
-          <div class="input-group-append">
-            <select name="email2" class="custom-select">
-              <option value="naver.com" selected>naver.com</option>
-              <option value="hanmail.net">hanmail.net</option>
-              <option value="hotmail.com">hotmail.com</option>
-              <option value="gmail.com">gmail.com</option>
-              <option value="nate.com">nate.com</option>
-              <option value="yahoo.com">yahoo.com</option>
-            </select>
-          </div>
-        </div>
-    </div>
-    <div class="form-group">
-      <div class="form-check-inline">
-        <span class="input-group-text">성별 :</span> &nbsp; &nbsp;
-        <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="gender" value="남자" checked>남자
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="gender" value="여자">여자
-        </label>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="birthday">생일</label>
-      <input type="date" name="birthday" value="<%=java.time.LocalDate.now() %>" class="form-control"/>
-    </div>
-    <div class="form-group">
       <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <span class="input-group-text">전화번호 :</span> &nbsp;&nbsp;
-            <select name="tel1" class="custom-select">
-              <option value="010" selected>010</option>
-              <option value="02">서울</option>
-              <option value="031">경기</option>
-              <option value="032">인천</option>
-              <option value="041">충남</option>
-              <option value="042">대전</option>
-              <option value="043">충북</option>
-              <option value="051">부산</option>
-              <option value="052">울산</option>
-              <option value="061">전북</option>
-              <option value="062">광주</option>
-            </select>-
-        </div>
-        <input type="text" name="tel2" size=4 maxlength=4 class="form-control"/>-
-        <input type="text" name="tel3" size=4 maxlength=4 class="form-control"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="address">주소</label>
-      <div class="input-group mb-1">
-        <input type="text" name="postcode" id="sample6_postcode" placeholder="우편번호" class="form-control">
+        <input type="text" class="form-control" placeholder="Email을 입력하세요." id="email1" name="email1" required />
         <div class="input-group-append">
-          <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기" class="btn btn-secondary">
+          <select name="email2" class="custom-select">
+            <option value="naver.com" selected>naver.com</option>
+            <option value="hanmail.net">hanmail.net</option>
+            <option value="hotmail.com">hotmail.com</option>
+            <option value="gmail.com">gmail.com</option>
+            <option value="nate.com">nate.com</option>
+            <option value="yahoo.com">yahoo.com</option>
+          </select>
         </div>
-      </div>
-      <input type="text" name="roadAddress" id="sample6_address" size="50" placeholder="주소" class="form-control mb-1">
-      <div class="input-group mb-1">
-        <input type="text" name="detailAddress" id="sample6_detailAddress" placeholder="상세주소" class="form-control"> &nbsp;&nbsp;
         <div class="input-group-append">
-          <input type="text" name="extraAddress" id="sample6_extraAddress" placeholder="참고항목" class="form-control">
+          <input type="button" value="인증번호받기" onclick="emailCertification()" id="certificationBtn" />
         </div>
       </div>
+      <div id="demoSpin"></div>
     </div>
-    <div class="form-group">
-      <label for="homepage">Homepage address:</label>
-      <input type="text" class="form-control" name="homePage" value="http://" placeholder="홈페이지를 입력하세요." id="homePage"/>
+    <div id="addContent" style="display:none">
+	    <div class="form-group">
+	      <div class="form-check-inline">
+	        <span class="input-group-text">성별 :</span> &nbsp; &nbsp;
+	        <label class="form-check-label">
+	          <input type="radio" class="form-check-input" name="gender" value="남자" checked>남자
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="radio" class="form-check-input" name="gender" value="여자">여자
+	        </label>
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label for="birthday">생일</label>
+	      <input type="date" name="birthday" value="<%=java.time.LocalDate.now() %>" class="form-control"/>
+	    </div>
+	    <div class="form-group">
+	      <div class="input-group mb-3">
+	        <div class="input-group-prepend">
+	          <span class="input-group-text">전화번호 :</span> &nbsp;&nbsp;
+	            <select name="tel1" class="custom-select">
+	              <option value="010" selected>010</option>
+	              <option value="02">서울</option>
+	              <option value="031">경기</option>
+	              <option value="032">인천</option>
+	              <option value="041">충남</option>
+	              <option value="042">대전</option>
+	              <option value="043">충북</option>
+	              <option value="051">부산</option>
+	              <option value="052">울산</option>
+	              <option value="061">전북</option>
+	              <option value="062">광주</option>
+	            </select>-
+	        </div>
+	        <input type="text" name="tel2" size=4 maxlength=4 class="form-control"/>-
+	        <input type="text" name="tel3" size=4 maxlength=4 class="form-control"/>
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label for="address">주소</label>
+	      <div class="input-group mb-1">
+	        <input type="text" name="postcode" id="sample6_postcode" placeholder="우편번호" class="form-control">
+	        <div class="input-group-append">
+	          <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기" class="btn btn-secondary">
+	        </div>
+	      </div>
+	      <input type="text" name="roadAddress" id="sample6_address" size="50" placeholder="주소" class="form-control mb-1">
+	      <div class="input-group mb-1">
+	        <input type="text" name="detailAddress" id="sample6_detailAddress" placeholder="상세주소" class="form-control"> &nbsp;&nbsp;
+	        <div class="input-group-append">
+	          <input type="text" name="extraAddress" id="sample6_extraAddress" placeholder="참고항목" class="form-control">
+	        </div>
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label for="homepage">Homepage address:</label>
+	      <input type="text" class="form-control" name="homePage" value="http://" placeholder="홈페이지를 입력하세요." id="homePage"/>
+	    </div>
+	    <div class="form-group">
+	      <label for="name">직업</label>
+	      <select class="form-control" id="job" name="job">
+	        <!-- <option value="">직업선택</option> -->
+	        <option>학생</option>
+	        <option>회사원</option>
+	        <option>공무원</option>
+	        <option>군인</option>
+	        <option>의사</option>
+	        <option>법조인</option>
+	        <option>세무인</option>
+	        <option>자영업</option>
+	        <option selected>기타</option>
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <div class="form-check-inline">
+	        <span class="input-group-text">취미</span> &nbsp; &nbsp;
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="등산" name="hobby"/>등산
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="낚시" name="hobby"/>낚시
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="수영" name="hobby"/>수영
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="독서" name="hobby"/>독서
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="영화감상" name="hobby"/>영화감상
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="바둑" name="hobby"/>바둑
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="축구" name="hobby"/>축구
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="checkbox" class="form-check-input" value="기타" name="hobby" checked/>기타
+	        </label>
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label for="content">자기소개</label>
+	      <textarea rows="5" class="form-control" id="content" name="content" placeholder="자기소개를 입력하세요."></textarea>
+	    </div>
+	    <div class="form-group">
+	      <div class="form-check-inline">
+	        <span class="input-group-text">정보공개</span>  &nbsp; &nbsp;
+	        <label class="form-check-label">
+	          <input type="radio" class="form-check-input" name="userInfor" value="공개" checked/>공개
+	        </label>
+	      </div>
+	      <div class="form-check-inline">
+	        <label class="form-check-label">
+	          <input type="radio" class="form-check-input" name="userInfor" value="비공개"/>비공개
+	        </label>
+	      </div>
+	    </div>
+	    <div  class="form-group">
+	      회원 사진(파일용량:2MByte이내) :
+	      <input type="file" name="fName" id="file" onchange="imgCheck(this)" class="form-control-file border"/>
+	      <div><img id="photoDemo" width="100px"/></div>
+	    </div>
+	    <button type="button" class="btn btn-secondary" onclick="fCheck()">회원가입</button> &nbsp;
+	    <button type="reset" class="btn btn-secondary">다시작성</button> &nbsp;
+	    <button type="button" class="btn btn-secondary" onclick="location.href='${ctp}/member/memberLogin';">돌아가기</button>
     </div>
-    <div class="form-group">
-      <label for="name">직업</label>
-      <select class="form-control" id="job" name="job">
-        <!-- <option value="">직업선택</option> -->
-        <option>학생</option>
-        <option>회사원</option>
-        <option>공무원</option>
-        <option>군인</option>
-        <option>의사</option>
-        <option>법조인</option>
-        <option>세무인</option>
-        <option>자영업</option>
-        <option selected>기타</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <div class="form-check-inline">
-        <span class="input-group-text">취미</span> &nbsp; &nbsp;
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="등산" name="hobby"/>등산
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="낚시" name="hobby"/>낚시
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="수영" name="hobby"/>수영
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="독서" name="hobby"/>독서
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="영화감상" name="hobby"/>영화감상
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="바둑" name="hobby"/>바둑
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="축구" name="hobby"/>축구
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" value="기타" name="hobby" checked/>기타
-        </label>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="content">자기소개</label>
-      <textarea rows="5" class="form-control" id="content" name="content" placeholder="자기소개를 입력하세요."></textarea>
-    </div>
-    <div class="form-group">
-      <div class="form-check-inline">
-        <span class="input-group-text">정보공개</span>  &nbsp; &nbsp;
-        <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="userInfor" value="공개" checked/>공개
-        </label>
-      </div>
-      <div class="form-check-inline">
-        <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="userInfor" value="비공개"/>비공개
-        </label>
-      </div>
-    </div>
-    <div  class="form-group">
-      회원 사진(파일용량:2MByte이내) :
-      <input type="file" name="fName" id="file" onchange="imgCheck(this)" class="form-control-file border"/>
-      <div><img id="photoDemo" width="100px"/></div>
-    </div>
-    <button type="button" class="btn btn-secondary" onclick="fCheck()">회원가입</button> &nbsp;
-    <button type="reset" class="btn btn-secondary">다시작성</button> &nbsp;
-    <button type="button" class="btn btn-secondary" onclick="location.href='${ctp}/member/memberLogin';">돌아가기</button>
     
     <input type="hidden" name="email" />
     <input type="hidden" name="tel" />

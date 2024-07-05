@@ -26,4 +26,8 @@ public interface MemberDAO {
 
 	public int setUserDel(@Param("mid") String mid);
 
+	public MemberVO getMemberNickNameEmailCheck(@Param("nickName") String nickName, @Param("email") String email);
+
+	public void setKakaoMemberInput(@Param("mid") String mid, @Param("pwd") String pwd, @Param("nickName") String nickName, @Param("email") String email);
+
 }

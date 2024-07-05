@@ -24,6 +24,7 @@
 	<resources mapping="/photo/**" location="/resources/data/photo/" />
 	<resources mapping="/fileUpload/**" location="/resources/data/fileUpload/" />
 	<resources mapping="/ckeditor/**" location="/resources/ckeditor/" />
+	<resources mapping="/study/**" location="/resources/data/study/" />
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -41,5 +42,15 @@
 		<beans:property name="maxUploadSize" value="20971520" />
 		<beans:property name="defaultEncoding" value="utf-8" />
 	</beans:bean>
+	
+	<!-- PDF처리...? -->
+	<!-- <beans:bean id="pdf" class="com.spring.javaclassS.common.PdfDownView" /> -->
+	<!-- 
+	<beans:bean id="beanNameViewResolver"	class="org.springframework.web.servlet.view.BeanNameViewResolver">
+	  <beans:property name="order" value="0" />
+  </beans:bean>
+   -->
+	<!-- bean id는 controller에서 쓸 뷰 네임 -->
+	<!-- <beans:bean id="download" class="com.spring.javaclassS.common.JavaclassProvide.DownloadView" /> -->
 	
 </beans:beans>
