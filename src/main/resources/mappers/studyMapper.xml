@@ -32,6 +32,27 @@
 	  select * from kakaoAddress order by address;
 	</select>
 	
+	<select id="getQrCodeSearch" resultType="com.spring.javaclassS.vo.QrCodeVO">
+		select * from qrCode where qrCodeName = #{qrCode};
+	</select>
+	
+	<select id="getRecentlyVisitCount" resultType="com.spring.javaclassS.vo.ChartVO">
+	  <if test="i == 1">
+	    select substring(visitDate, 1, 10) as visitDate, visitCount from visit order by visitDate desc limit 7;
+	  </if>
+	  <if test="i == 2">
+	    select mid as visitDate, visitCnt as visitCount from member2 order by visitCnt desc limit 7;
+	  </if>
+	</select>
+	
+	<select id="getTransactionList" resultType="com.spring.javaclassS.vo.TransactionVO">
+		select * from user order by idx desc;
+	</select>
+	
+	<select id="getTransactionList2" resultType="com.spring.javaclassS.vo.TransactionVO">
+	  select * from user2 order by mid;
+	</select>
+	
 	
 	<insert id="setSaveCrimeDate">
 		insert into crime values (default,#{vo.year},#{vo.police},#{vo.robbery},#{vo.theft},#{vo.murder},#{vo.violence});
@@ -43,6 +64,27 @@
 	
 	<insert id="setPetCafe">
 	  insert into petCafe values (default,#{vo.placeName},#{vo.category},#{vo.sido},#{vo.sigungu},#{vo.dong},#{vo.latitude},#{vo.longitude},#{vo.zipNum},#{vo.rdnmAddress},#{vo.lnmAddress},#{vo.homePage},#{vo.closedDay},#{vo.openTime},#{vo.parking},#{vo.playPrice},#{vo.petOK},#{vo.petSize},#{vo.petLimit},#{vo.inPlaceOK},#{vo.outPlaceOK},#{vo.placeInfo},#{vo.petExtraFee});
+	</insert>
+	
+	<insert id="setQrCodeCreate">
+	  insert into qrCode values (default,#{vo.mid},#{vo.name},#{vo.email},#{vo.movieName},#{vo.movieDate},#{vo.movieTime},#{vo.movieAdult},#{vo.movieChild},#{vo.publishDate},#{vo.qrCodeName});
+	</insert>
+	
+	<insert id="setTransactionUserInput">
+	  insert into user values (default,#{vo.mid},#{vo.name},#{vo.age},#{vo.address});
+	</insert>
+	
+	<insert id="setTransactionUser1Input">
+	  insert into user values (default,#{vo.mid},#{vo.name},#{vo.age},#{vo.address});
+	</insert>
+	
+	<insert id="setTransactionUser2Input">
+	  insert into user2 values (#{vo.mid},#{vo.job});
+	</insert>
+	
+	<insert id="setTransactionUserTotalInput">
+	  insert into user values (default,#{vo.mid},#{vo.name},#{vo.age},#{vo.address});
+	  insert into user2 values (#{vo.mid},#{vo.job});
 	</insert>
 	
 	

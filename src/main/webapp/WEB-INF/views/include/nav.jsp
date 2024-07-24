@@ -38,6 +38,16 @@
 		  });
 	  }
   }
+  
+  // 네이버 로그아웃
+  function naverLogout() {
+	  var url = "${ctp}/member/naverLogout";
+		var childWindow = window.open(url, "naverWindow", "width=50, height=50, top=0, left=0");
+		setTimeout(() => {
+	  	if(childWindow != null) childWindow.close();		  
+	    location.href = "${ctp}/member/memberLogout";
+	  }, 1500);
+  }
 </script>
 <div class="w3-top">
   <div class="w3-bar w3-black w3-card">
@@ -61,6 +71,7 @@
 	        <a href="${ctp}/study/crawling/jsoup" class="w3-bar-item w3-button">크롤링(jsoup)</a>
 	        <a href="${ctp}/study/crawling/selenium" class="w3-bar-item w3-button">크롤링(selenium)</a>
 	        <a href="${ctp}/study/wordcloud/wordcloudForm" class="w3-bar-item w3-button">WordCloud</a>
+	        <a href="${ctp}/study/exchangeRate/exchangeRate" class="w3-bar-item w3-button">환율계산하기</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
@@ -70,20 +81,35 @@
 	        <a href="${ctp}/study/kakao/kakaomap" class="w3-bar-item w3-button">카카오맵</a>
 	        <a href="${ctp}/study/weather/weatherForm" class="w3-bar-item w3-button">날씨API</a>
 	        <a href="${ctp}/study/captcha/captchaForm" class="w3-bar-item w3-button">캡차연습</a>
-	        <a href="${ctp}/study/password/password" class="w3-bar-item w3-button">QR Code</a>
-	        <a href="${ctp}/study/mail/mailForm" class="w3-bar-item w3-button">웹 차트</a>
-	        <a href="${ctp}/study/fileUpload/fileUpload" class="w3-bar-item w3-button">트랜잭션</a>
+	        <a href="${ctp}/study/qrCode/qrCodeForm" class="w3-bar-item w3-button">QR Code</a>
+	        <a href="${ctp}/study/thumbnail/thumbnailForm" class="w3-bar-item w3-button">썸네일 연습</a>
+	        <a href="${ctp}/study/chart/chartForm" class="w3-bar-item w3-button">웹 차트 1</a>
+	        <a href="${ctp}/study/chart2/chart2Form" class="w3-bar-item w3-button">웹 차트 2</a>
+	        <a href="${ctp}/study/validator/validatorForm" class="w3-bar-item w3-button">Validator 연습</a>
+	        <a href="${ctp}/study/transaction/transactionForm" class="w3-bar-item w3-button">트랜잭션 연습</a>
 	        <a href="#" class="w3-bar-item w3-button">스케줄러</a>
 	        <a href="${ctp}/study/csv/csvForm" class="w3-bar-item w3-button">CSV를MySQL로</a>
+	        <a href="${ctp}/study/slideBar/rangeSlider" class="w3-bar-item w3-button">Range Slider</a>
+	      </div>
+	    </div>
+	    <div class="w3-dropdown-hover w3-hide-small">
+	      <button class="w3-padding-large w3-button" title="More">Shopping mall <i class="fa fa-caret-down"></i></button>     
+	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
+	        <a href="${ctp}/dbShop/dbProductList" class="w3-bar-item w3-button">상품리스트</a>
+	        <a href="${ctp}/dbShop/dbCartList" class="w3-bar-item w3-button">장바구니</a>
+	        <a href="${ctp}/dbShop/dbMyOrder" class="w3-bar-item w3-button">주문(배송)현황</a>
+	        <a href="${ctp}/study/payment/payment" class="w3-bar-item w3-button">결재연습</a>
+	        <a href="${ctp}/" class="w3-bar-item w3-button">QnA</a>
+	        <a href="${ctp}/" class="w3-bar-item w3-button">1:1문의</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
 	      <button onclick="location.href='${ctp}/member/memberMain';" class="w3-padding-large w3-button" title="More">MyPage <i class="fa fa-caret-down"></i></button>     
 	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
 	        <a href="${ctp}/" class="w3-bar-item w3-button">일정관리</a>
-	        <a href="${ctp}/" class="w3-bar-item w3-button">Photo Gallery</a>
+	        <a href="${ctp}/photoGallery/photoGalleryList" class="w3-bar-item w3-button">Photo Gallery</a>
 	        <a href="${ctp}/" class="w3-bar-item w3-button">DB 채팅</a>
-	        <a href="${ctp}/" class="w3-bar-item w3-button">웹소켓 채팅</a>
+	        <a href="${ctp}/webSocket/webSocket" class="w3-bar-item w3-button">웹소켓 채팅</a>
 	        <a href="${ctp}/member/memberList" class="w3-bar-item w3-button">회원리스트</a>
 	        <a href="${ctp}/member/memberPwdCheck/p" class="w3-bar-item w3-button">비밀번호변경</a>
 	        <a href="${ctp}/member/memberPwdCheck/i" class="w3-bar-item w3-button">회원정보수정</a>
@@ -102,6 +128,7 @@
 	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
 			    <a href="${ctp}/member/memberLogout" class="w3-bar-item w3-button w3-padding-large w3-hide-small">일반 Logout</a>
 			    <a href="javascript:kakaoLogout()" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Kakao Logout</a>
+			    <a href="javascript:naverLogout()" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Naver Logout</a>
 			  </div>
 			</div>
     </c:if>

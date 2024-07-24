@@ -14,6 +14,7 @@ public class MessageController {
 	public String getMessage(Model model,
 			@PathVariable String msgFlag,
 			@RequestParam(name="mid", defaultValue = "", required = false) String mid,
+			@RequestParam(name="tempFlag", defaultValue = "", required = false) String tempFlag,
 			@RequestParam(name="idx", defaultValue = "", required = false) String idx,
 			@RequestParam(name="pag", defaultValue = "1", required = false) String pag,
 			@RequestParam(name="pageSize", defaultValue = "5", required = false) String pageSize
@@ -45,7 +46,9 @@ public class MessageController {
 		}
 		else if(msgFlag.equals("dbtestDeleteOk")) {
 			model.addAttribute("msg", "회원 삭제 완료!");
-			model.addAttribute("url", "/dbtest/dbtestList");
+			if(tempFlag.equals("validator")) model.addAttribute("url", "/study/validator/validatorForm");
+			else if(tempFlag.equals("transaction")) model.addAttribute("url", "/study/transaction/transactionForm");
+			else model.addAttribute("url", "/dbtest/dbtestList");
 		}
 		else if(msgFlag.equals("dbtestDeleteNo")) {
 			model.addAttribute("msg", "회원 삭제 실패~~");
@@ -187,7 +190,79 @@ public class MessageController {
 			model.addAttribute("msg", "같은 아이디를 가진 회원이 존재합니다.\\n아이디 확인후 다시 로그인해 주세요.");
 			model.addAttribute("url", "/member/memberLogin");
 		}
-		
+		else if(msgFlag.equals("qrLoginMemberNo")) {
+			model.addAttribute("msg", "회원정보가 없습니다.\\n아이디 확인후 다시 로그인해 주세요.");
+			model.addAttribute("url", "/member/memberLogin");
+		}
+		else if(msgFlag.equals("qrLoginTimeOver")) {
+			model.addAttribute("msg", "시간이 경과했습니다.\\n다시 로그인해 주세요.");
+			model.addAttribute("url", "/member/memberLogin");
+		}
+		else if(msgFlag.equals("transactionUserInputOk")) {
+			model.addAttribute("msg", "user테이블에 회원이 등록되었습니다.");
+			if(tempFlag.equals("validator")) model.addAttribute("url", "/study/validator/validatorForm");
+			else if(tempFlag.equals("transaction")) model.addAttribute("url", "/study/transaction/transactionForm");
+		}
+		else if(msgFlag.equals("transactionUserInputNo")) {
+			model.addAttribute("msg", "user테이블에 회원 등록실패~~");
+			model.addAttribute("url", "/study/validator/validatorForm");
+		}
+		else if(msgFlag.equals("backendCheckNo")) {
+			model.addAttribute("msg", "저장실패~~ "+tempFlag+"를 확인해보세요.(BackEnd Check)");
+			model.addAttribute("url", "/study/validator/validatorForm");
+		}
+		else if(msgFlag.equals("photoGalleryInputOk")) {
+			model.addAttribute("msg", "포토갤러리에 등록되었습니다.");
+			model.addAttribute("url", "photoGallery/photoGalleryList");
+		}
+		else if(msgFlag.equals("photoGalleryInputNo")) {
+			model.addAttribute("msg", "포토갤러리에 등록 실패~~");
+			model.addAttribute("url", "photoGallery/photoGalleryInput");
+		}
+		else if(msgFlag.equals("dbProductInputOk")) {
+			model.addAttribute("msg", "상품이 등록되었습니다.");
+			model.addAttribute("url", "dbShop/dbShopList");
+		}
+		else if(msgFlag.equals("dbProductInputNo")) {
+			model.addAttribute("msg", "상품 등록 실패~~");
+			model.addAttribute("url", "dbShop/dbProduct");
+		}
+		else if(msgFlag.equals("dbOptionInputOk")) {
+			model.addAttribute("msg", "옵션항목이 등록되었습니다.");
+			model.addAttribute("url", "dbShop/dbOption?productName="+tempFlag);
+		}
+		else if(msgFlag.equals("dbOptionInputNo")) {
+			model.addAttribute("msg", "옵션항목 등록 실패~~");
+			model.addAttribute("url", "dbShop/dbOption?productName="+tempFlag);
+		}
+		else if(msgFlag.equals("cartOrderOk")) {
+			model.addAttribute("msg", "장바구니에 상품이 등록되었습니다.\\n주문창으로 이동합니다.");
+			model.addAttribute("url", "/dbShop/dbCartList");
+		}
+		else if(msgFlag.equals("cartOrderNo")) {
+			model.addAttribute("msg", "장바구니에 상품 등록실패");
+			model.addAttribute("url", "/dbShop/dbCartList");
+		}
+		else if(msgFlag.equals("cartInputOk")) {
+			model.addAttribute("msg", "장바구니에 상품이 등록되었습니다.\\n즐거운 쇼핑되세요.");
+			model.addAttribute("url", "/dbShop/dbProductList");
+		}
+		else if(msgFlag.equals("cartEmpty")) {
+			model.addAttribute("msg", "장바구니가 비어있습니다.");
+			model.addAttribute("url", "/dbShop/dbProductList");
+		}
+		else if(msgFlag.equals("paymentResultOk")) {
+			model.addAttribute("msg", "결재가 성공적으로 완료되었습니다.");
+			model.addAttribute("url", "/dbShop/paymentResultOk");
+		}
+		else if(msgFlag.equals("photoGalleryDeleteOk")) {
+			model.addAttribute("msg", "게시물이 삭제 되었습니다.");
+			model.addAttribute("url", "/photoGallery/photoGalleryList");
+		}
+		else if(msgFlag.equals("photoGalleryDeleteNo")) {
+			model.addAttribute("msg", "게시물이 삭제 실패~~");
+			model.addAttribute("url", "/photoGallery/photoGalleryList");
+		}
 		
 		return "include/message";
 	}

@@ -163,11 +163,6 @@
     }
   </script>
   <style>
-    th {
-      background-color: #eee;
-      width: 15%;
-      text-align: center;
-    }
 		h6 {
 		  position: fixed;
 		  right: 1rem;
@@ -179,6 +174,12 @@
 		  cursor: pointer;
 		  bottom: 0;
 		}
+		
+    th {
+      background-color: #eee;
+      width: 15%;
+      text-align: center;
+    }
 		
     /* 별점 스타일 설정하기 */
     #starForm fieldset {

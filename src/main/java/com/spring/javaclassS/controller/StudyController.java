@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -18,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -72,10 +77,15 @@ import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.common.SecurityUtil;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
+import com.spring.javaclassS.vo.ChartVO;
 import com.spring.javaclassS.vo.CrawlingVO;
 import com.spring.javaclassS.vo.CrimeVO;
+import com.spring.javaclassS.vo.DbPayMentVO;
+import com.spring.javaclassS.vo.ExchangeRateVO;
 import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.MailVO;
+import com.spring.javaclassS.vo.QrCodeVO;
+import com.spring.javaclassS.vo.TransactionVO;
 import com.spring.javaclassS.vo.UserVO;
 
 @Controller
@@ -1185,5 +1195,365 @@ public class StudyController {
 		if(strCaptcha.equals(session.getAttribute("sCaptcha").toString())) return "1";
 		else return "0";
 	}
+	
+	// QR Code 연습 폼
+	@RequestMapping(value = "/qrCode/qrCodeForm", method = RequestMethod.GET)
+	public String qrCodeCreateGet() {
+		return "study/qrCode/qrCodeForm";
+	}
+	
+	// QR Code 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate", method = RequestMethod.POST)
+	public String qrCodeCreatePost(HttpServletRequest request) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate(realPath);
+	}
+	
+	// QR Code 개인정보 QR 코드로 생성하기 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx1", method = RequestMethod.GET)
+	public String qrCodeEx1Get() {
+		return "study/qrCode/qrCodeEx1";
+	}
+	
+	// QR Code 개인정보 QR 코드로 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate1", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate1Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate1(realPath, vo);
+	}
+	
+	// QR Code 소개사이트 주소 생성하기 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx2", method = RequestMethod.GET)
+	public String qrCodeEx2Get() {
+		return "study/qrCode/qrCodeEx2";
+	}
+	
+	// QR Code 소개사이트 주소 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate2", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate2Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate2(realPath, vo);
+	}
+	
+	// QR Code 티켓예매 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx3", method = RequestMethod.GET)
+	public String qrCodeEx3Get() {
+		return "study/qrCode/qrCodeEx3";
+	}
+	
+	// QR Code 티켓예매 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate3", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate3Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate3(realPath, vo);
+	}
+	
+	// QR Code 티켓예매 폼보기(DB저장 검색)
+	@RequestMapping(value = "/qrCode/qrCodeEx4", method = RequestMethod.GET)
+	public String qrCodeEx4Get() {
+		return "study/qrCode/qrCodeEx4";
+	}
+	
+	// QR Code 티켓예매 생성하기(DB저장 검색)
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate4", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate4Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate4(realPath, vo);
+	}
+	
+	// QR Code명 검색하기(DB저장 검색)
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeSearch", method = RequestMethod.POST)
+	public QrCodeVO qrCodeSearchPost(String qrCode) {
+		return studyService.getQrCodeSearch(qrCode);
+	}
+	
+	// 썸네일 연습 폼보기
+	@RequestMapping(value = "/thumbnail/thumbnailForm", method = RequestMethod.GET)
+	public String thumbnailFormGet() {
+		return "study/thumbnail/thumbnailForm";
+	}
+	
+	// 썸네일 연습 사진처리
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailForm", method = RequestMethod.POST)
+	public String thumbnailFormPost(MultipartFile file) {
+		return studyService.setThumbnailCreate(file);
+	}
+	
+	// 썸네일 전체 리스트 이미지 보기
+	@RequestMapping(value = "/thumbnail/thumbnailResult", method = RequestMethod.GET)
+	public String thumbnailResultGet(HttpServletRequest request, Model model) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		String[] files = new File(realPath).list();
+		
+		model.addAttribute("files", files);
+		model.addAttribute("fileCount", (files.length / 2));
+		
+		return "study/thumbnail/thumbnailResult";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailDelete", method = RequestMethod.POST)
+	public String thumbDeletePost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		
+		String res = "0";
+		File fName = new File(realPath + file);
+		File sName = new File(realPath + "s_" + file);
+		if(fName.exists()) {
+			fName.delete();
+			sName.delete();
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailDeleteAll", method = RequestMethod.POST)
+	public String thumbnailDeleteAllPost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		
+		String res = "0";
+		File targetFolder = new File(realPath);
+		if(!targetFolder.exists()) return "0";
+		
+		File[] files = targetFolder.listFiles();
+		
+		if(files.length != 0) {
+			for(File f : files) {
+				if(!f.isDirectory()) f.delete();
+			}
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@RequestMapping(value = "/chart/chartForm", method = RequestMethod.GET)
+	public String chartFormGet(Model model,
+			@RequestParam(name="part", defaultValue="barVChart", required=false) String part) {
+		model.addAttribute("part", part);
+		return "study/chart/chartForm";
+	}
+	
+	@RequestMapping(value = "/chart2/chart2Form", method = RequestMethod.GET)
+	public String chart2FormGet(Model model,
+			@RequestParam(name="part", defaultValue="barVChart", required=false) String part) {
+		model.addAttribute("part", part);
+		return "study/chart2/chart2Form";
+	}
+	
+	@RequestMapping(value = "/chart2/googleChart2", method = RequestMethod.POST)
+	public String googleChart2Post(Model model, ChartVO vo) {
+		model.addAttribute("vo", vo);
+		return "study/chart2/chart2Form";
+	}
+	
+	// 최근 방문자수 선형 차트로 표시하기
+	@RequestMapping(value = "/chart2/googleChart2Recently", method = RequestMethod.GET)
+	public String googleChart2RecentlyGet(Model model, ChartVO vo) {
+		//System.out.println("part : " + vo.getPart());
+		
+		List<ChartVO> vos = null;
+		if(vo.getPart().equals("lineChartVisitCount")) {
+			vos = studyService.getRecentlyVisitCount(1);
+			// vos자료를 차트에 표시처리가 잘 되지 않을경우에는 각각의 자료를 다시 편집해서 차트로 보내줘야 한다.
+			String[] visitDates = new String[7];
+			int[] visitCounts = new int[7];
+			
+			for(int i=0; i<7; i++) {
+				visitDates[i] = vos.get(i).getVisitDate();
+				visitCounts[i] = vos.get(i).getVisitCount();
+			}
+			
+			model.addAttribute("part", vo.getPart());
+			model.addAttribute("xTitle", "방문날짜");
+			model.addAttribute("regend", "하루 총 방문자수");
+			
+			model.addAttribute("visitDates", visitDates);
+			model.addAttribute("visitCounts", visitCounts);
+			model.addAttribute("title", "최근 7일간 방문횟수");
+			model.addAttribute("subTitle", "(최근 7일간 방문한 해당일자의 방문자 총수를 표시합니다.");
+		}
+		return "study/chart2/chart2Form";
+	}
+	// 많이찾은 방문자 7명 차트로 표시하기
+	@RequestMapping(value = "/chart2/googleChart2Recently2", method = RequestMethod.GET)
+	public String googleChart2Recently2Get(Model model, ChartVO vo) {
+		//System.out.println("part : " + vo.getPart());
+		List<ChartVO> vos = null;
+		/*if(vo.getPart().equals("barChartVisitCount2")) {*/
+			vos = studyService.getRecentlyVisitCount(2);
+			// vos자료를 차트에 표시처리가 잘 되지 않을경우에는 각각의 자료를 다시 편집해서 차트로 보내줘야 한다.
+			String[] visitDates = new String[7];
+			int[] visitCounts = new int[7];
+			
+			for(int i=0; i<7; i++) {
+				visitDates[i] = vos.get(i).getVisitDate();
+				visitCounts[i] = vos.get(i).getVisitCount();
+			}
+			//System.out.println("vos : " + vos);
+			model.addAttribute("part", vo.getPart());
+			model.addAttribute("xTitle", "방문날짜");
+			model.addAttribute("legend", "하루 총 방문자수");
+			
+			model.addAttribute("visitDates", visitDates);
+			model.addAttribute("visitCounts", visitCounts);
+			model.addAttribute("title", "최근 가장 많이 방문한 회원 7명");
+			model.addAttribute("subTitle", "(가장 많이 방문한 방문자 7인의 방문횟수를 표시합니다.");
+	/* } */
+		
+		return "study/chart2/chart2Form";
+	}
+
+	// BackEnd Check를 위한 validator 연습하기 폼
+	@RequestMapping(value = "/validator/validatorForm", method = RequestMethod.GET)
+	public String validatorFormGet(Model model) {
+		List<TransactionVO> vos = studyService.getTransactionList();
+		
+		model.addAttribute("vos", vos);
+		return "study/validator/validatorForm";
+	}
+	// BackEnd Check를 위한 validator 연습하기
+	@RequestMapping(value = "/validator/validatorForm", method = RequestMethod.POST)
+	public String validatorFormPost(@Validated TransactionVO vo, BindingResult bindingResult) {
+
+		if(bindingResult.hasFieldErrors()) {
+			System.out.println("error 발생");
+			System.out.println("에러 : " + bindingResult);
+			return "redirect:/message/backendCheckNo";
+		}
+		
+		int res = studyService.setTransactionUserInput(vo);
+		
+		if(res != 0) return "redirect:/message/transactionUserInputOk?tempFlag=validator";
+		else return "redirect:/message/transactionUserInputNo";
+	}
+	
+	// Transaction(트랜잭션)을 위한 연습 폼
+	@RequestMapping(value = "/transaction/transactionForm", method = RequestMethod.GET)
+	public String transactionFormGet(Model model) {
+		List<TransactionVO> vos = studyService.getTransactionList();
+		List<TransactionVO> vos2 = studyService.getTransactionList2();
+		
+		model.addAttribute("vos", vos);
+		model.addAttribute("vos2", vos2);
+		return "study/transaction/transactionForm";
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/transaction/transactionForm", method = RequestMethod.POST)
+	public String transactionFormPost(@Validated TransactionVO vo, BindingResult bindingResult) {
+		if(bindingResult.hasFieldErrors()) {
+			System.out.println("에러 : " + bindingResult);
+			return "redirect:/message/backendCheckNo";
+		}
+		
+		studyService.setTransactionUser1Input(vo);
+		studyService.setTransactionUser2Input(vo);
+		
+		return "redirect:/message/transactionUserInputOk?tempFlag=transaction";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/transaction/transaction2", method = RequestMethod.POST, produces="application/text; charset=utf8")
+	public String transaction2Post(@Validated TransactionVO vo, BindingResult bindingResult, Model model) {
+		System.out.println("error : " + bindingResult.hasErrors());
+		
+		if(bindingResult.hasFieldErrors()) {	// bindingResult.hasFieldErrors() 결과값이 true가 나오면 오류가 있다는 것이다.
+			List<ObjectError> list = bindingResult.getAllErrors();
+			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			
+			String[] temp = null;
+			for(ObjectError e : list) {
+				System.out.println("메세지 : " + e.getDefaultMessage());
+				temp = e.getDefaultMessage().split("/");
+				if(temp[1].equals("midEmpty") || temp[1].equals("midSizeNo") || temp[1].equals("nameEmpty") || temp[1].equals("nameSizeNo") || temp[1].equals("ageRangeNo")) break;
+			}
+			System.out.println("temp : " + temp[0]);
+			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//			메세지컨트롤러를 이용할경우는 아래2줄로 처리...
+//			model.addAttribute("tempFlag", temp[0]);
+//			return "redirect:/message/backendCheckNo";
+			return temp[0];
+		}
+		
+		return studyService.setTransactionUserTotalInput(vo) + "";
+	}
+	
+	// Range Slider버튼 연습
+	@RequestMapping(value = "/slideBar/rangeSlider", method = RequestMethod.GET)
+	public String rangeSliderGet(Model model,
+			@RequestParam(name="price", defaultValue = "500000", required=false) int price) {
+		model.addAttribute("price", price);
+		
+		return "study/slideBar/rangeSlider";
+	}
+	
+  // 결제처리 연습하기 폼..
+  @RequestMapping(value = "/payment/payment", method = RequestMethod.GET)
+  public String paymentGet() {
+  	return "study/payment/payment";
+  }
+  
+  // 결제처리 연습하기 폼..처리
+  @RequestMapping(value = "/payment/payment", method = RequestMethod.POST)
+  public String paymentPost(Model model, HttpSession session, DbPayMentVO vo) {
+  	session.setAttribute("sPayMentVO", vo);
+  	model.addAttribute("vo", vo);
+  	return "study/payment/sample";
+  }
+  
+  // 결제처리완료후 확인하는 폼...
+  @RequestMapping(value = "/payment/paymentOk", method = RequestMethod.GET)
+  public String paymentOkGet(Model model, HttpSession session) {
+  	DbPayMentVO vo = (DbPayMentVO) session.getAttribute("sPayMentVO");
+  	model.addAttribute("vo", vo);
+  	
+  	session.removeAttribute("sPayMentVO");
+  	return "study/payment/paymentOk";
+  }
+
+  // 환율계산하기 폼보기
+  @RequestMapping(value = "/exchangeRate/exchangeRate", method = RequestMethod.GET)
+  public String exchangeRateGet(Model model,
+  		@RequestParam(name="searchdate", defaultValue="",required=false) String searchdate) {
+  	if(searchdate.equals("")) {
+  		//searchdate = java.time.LocalDate.now();
+			Date today = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			searchdate = sdf.format(today);
+  	}
+  	List<ExchangeRateVO> unitVos = studyService.getExchangeRateUnit(searchdate);
+  	model.addAttribute("searchdate", searchdate);
+  	model.addAttribute("unitVos", unitVos);
+  	//System.out.println(unitVos);
+  	return "study/exchangeRate/exchangeRate";
+  }
+  
+  // 환율api에서 가져와서 지정된 날짜의 환율 보여주기
+  @ResponseBody
+  @RequestMapping(value="/exchangeRate/exchangeRate", method=RequestMethod.POST, produces="application/text; charset=utf-8")
+  public String exchangeRatePost(String searchdate,
+  		@RequestParam(name = "receiveCountry", defaultValue = "", required = false) String receiveCountry){
+    return studyService.getCurrencyRate(receiveCountry, searchdate);
+  }
+  
+  // 환율api에서 환률가져와서 송금달라입력시 해당 송금액을 원화로 계산한 결과를 리턴해주기
+  @ResponseBody
+  @RequestMapping(value="/exchangeRate/exchangeRateCompute", method=RequestMethod.POST, produces="application/text; charset=utf-8")
+  public String exchangeRateComputePost(String searchdate,
+  		@RequestParam(name = "receiveCountry", defaultValue = "", required = false) String receiveCountry,
+  		@RequestParam(name = "sendAmount", defaultValue = "0", required = false) String sendAmount
+  	){
+  	return studyService.getCurrencyRateCompute(receiveCountry, sendAmount, searchdate);
+  }
 	
 }

@@ -1,34 +1,57 @@
 package com.spring.javaclassS.service;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.dao.StudyDAO;
+import com.spring.javaclassS.vo.ChartVO;
 import com.spring.javaclassS.vo.CrimeVO;
+import com.spring.javaclassS.vo.ExchangeRateVO;
 import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.PetCafeVO;
+import com.spring.javaclassS.vo.QrCodeVO;
+import com.spring.javaclassS.vo.TransactionVO;
 import com.spring.javaclassS.vo.UserVO;
+
+import net.coobird.thumbnailator.Thumbnailator;
 
 @Service
 public class StudyServiceImpl implements StudyService {
@@ -370,5 +393,506 @@ public class StudyServiceImpl implements StudyService {
 		return studyDAO.setCsvTableDelete(csvTable);
 	}
 
+	@Override
+	public String setQrCodeCreate(String realPath) {
+		String qrCodeName = javaclassProvide.newNameCreate(2);
+		String qrCodeImage = "";
+		try {
+			// QR코드안의 한글 인코딩
+			qrCodeImage = "생성된 QR코드명 : " + qrCodeName;
+			qrCodeImage = new String(qrCodeImage.getBytes("UTF-8"), "ISO-8859-1");
+			
+			// qr 코드 만들기
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeImage, BarcodeFormat.QR_CODE, 200, 200);
+			
+			//MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig();  // 기본컬러(글자색:검정,배경색:흰색)
+			int qrCodeColor = 0xFF000000;
+			int qrCodeBackColor = 0xFFFFFFFF;
+			
+			MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(qrCodeColor, qrCodeBackColor);
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix, matrixToImageConfig);
+			
+			// 랜더링된 QR코드 이미지를 실제 그림파일로 만들어낸다.
+			ImageIO.write(bufferedImage, "png", new File(realPath + qrCodeName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+		
+		return qrCodeName;
+	}
 
+	@Override
+	public String setQrCodeCreate1(String realPath, QrCodeVO vo) {
+		String qrCodeName = javaclassProvide.newNameCreate(2);
+		String qrCodeImage = "";
+		try {
+			// QR코드안의 한글 인코딩
+			qrCodeName += vo.getMid() + "_" + vo.getName() + "_" + vo.getEmail();
+			qrCodeImage = "생성날짜 : " + qrCodeName.substring(0,4) + "년, " + qrCodeName.substring(4,6) + "월, " + qrCodeName.substring(6,8) + "일\n";
+			qrCodeImage += "아이디 : " + vo.getMid() + "\n";
+			qrCodeImage += "성명 : " + vo.getName() + "\n";
+			qrCodeImage += "이메일 : " + vo.getEmail();
+			qrCodeImage = new String(qrCodeImage.getBytes("UTF-8"), "ISO-8859-1");
+			
+			// qr 코드 만들기
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeImage, BarcodeFormat.QR_CODE, 200, 200);
+			
+			//MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig();  // 기본컬러(글자색:검정,배경색:흰색)
+			int qrCodeColor = 0xFF000000;
+			int qrCodeBackColor = 0xFFFFFFFF;
+			
+			MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(qrCodeColor, qrCodeBackColor);
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix, matrixToImageConfig);
+			
+			// 랜더링된 QR코드 이미지를 실제 그림파일로 만들어낸다.
+			ImageIO.write(bufferedImage, "png", new File(realPath + qrCodeName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+		
+		return qrCodeName;
+	}
+	
+	@Override
+	public String setQrCodeCreate2(String realPath, QrCodeVO vo) {
+		String qrCodeName = javaclassProvide.newNameCreate(2);
+		String qrCodeImage = "";
+		try {
+			// QR코드안의 한글 인코딩
+			qrCodeName += vo.getMoveUrl();
+			qrCodeImage = vo.getMoveUrl();
+			qrCodeImage = new String(qrCodeImage.getBytes("UTF-8"), "ISO-8859-1");
+			
+			// qr 코드 만들기
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeImage, BarcodeFormat.QR_CODE, 200, 200);
+			
+			//MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig();  // 기본컬러(글자색:검정,배경색:흰색)
+			int qrCodeColor = 0xFF000000;
+			int qrCodeBackColor = 0xFFFFFFFF;
+			
+			MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(qrCodeColor, qrCodeBackColor);
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix, matrixToImageConfig);
+			
+			// 랜더링된 QR코드 이미지를 실제 그림파일로 만들어낸다.
+			ImageIO.write(bufferedImage, "png", new File(realPath + qrCodeName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+		
+		return qrCodeName;
+	}
+	
+	@Override
+	public String setQrCodeCreate3(String realPath, QrCodeVO vo) {
+		String qrCodeName = javaclassProvide.newNameCreate(2);
+		String qrCodeImage = "";
+		try {
+			// QR코드안의 한글 인코딩
+			qrCodeName += vo.getMid() + "_" + vo.getMovieName() + "_" + vo.getMovieDate() + "_" + vo.getMovieTime() + "_" + vo.getMovieAdult() + "_" + vo.getMovieChild();
+			qrCodeImage = "구매자 ID : " + vo.getMid() + "\n";
+			qrCodeImage += "영화제목 : " + vo.getMovieName() + "\n";
+			qrCodeImage += "상영일자 : " + vo.getMovieDate() + "\n";
+			qrCodeImage += "상영시간 : " + vo.getMovieTime() + "\n";
+			qrCodeImage += "성인구매인원수 : " + vo.getMovieAdult() + "\n";
+			qrCodeImage += "소인구매인원수 : " + vo.getMovieChild();
+			qrCodeImage = new String(qrCodeImage.getBytes("UTF-8"), "ISO-8859-1");
+			
+			// qr 코드 만들기
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeImage, BarcodeFormat.QR_CODE, 200, 200);
+			
+			//MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig();  // 기본컬러(글자색:검정,배경색:흰색)
+			int qrCodeColor = 0xFF000000;
+			int qrCodeBackColor = 0xFFFFFFFF;
+			
+			MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(qrCodeColor, qrCodeBackColor);
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix, matrixToImageConfig);
+			
+			// 랜더링된 QR코드 이미지를 실제 그림파일로 만들어낸다.
+			ImageIO.write(bufferedImage, "png", new File(realPath + qrCodeName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+		
+		return qrCodeName;
+	}
+
+	@Override
+	public String setQrCodeCreate4(String realPath, QrCodeVO vo) {
+		String qrCodeName = javaclassProvide.newNameCreate(2);
+		String qrCodeImage = "";
+		try {
+			String strToday = qrCodeName.substring(0, qrCodeName.length()-3);
+			
+			// QR코드안의 한글 인코딩
+			qrCodeName += vo.getMid() + "_" + vo.getMovieName() + "_" + vo.getMovieDate() + "_" + vo.getMovieTime() + "_" + vo.getMovieAdult() + "_" + vo.getMovieChild();
+			qrCodeImage = "구매자 ID : " + vo.getMid() + "\n";
+			qrCodeImage += "영화제목 : " + vo.getMovieName() + "\n";
+			qrCodeImage += "상영일자 : " + vo.getMovieDate() + "\n";
+			qrCodeImage += "상영시간 : " + vo.getMovieTime() + "\n";
+			qrCodeImage += "성인구매인원수 : " + vo.getMovieAdult() + "\n";
+			qrCodeImage += "소인구매인원수 : " + vo.getMovieChild();
+			qrCodeImage = new String(qrCodeImage.getBytes("UTF-8"), "ISO-8859-1");
+			
+			// qr 코드 만들기
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeImage, BarcodeFormat.QR_CODE, 200, 200);
+			
+			//MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig();  // 기본컬러(글자색:검정,배경색:흰색)
+			int qrCodeColor = 0xFF000000;
+			int qrCodeBackColor = 0xFFFFFFFF;
+			
+			MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(qrCodeColor, qrCodeBackColor);
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix, matrixToImageConfig);
+			
+			// 랜더링된 QR코드 이미지를 실제 그림파일로 만들어낸다.
+			ImageIO.write(bufferedImage, "png", new File(realPath + qrCodeName + ".png"));
+			
+			// QR코드 생성후, 생성된 정보를 DB에 저장시켜준다.
+			vo.setPublishDate(strToday);
+			vo.setQrCodeName(qrCodeName);
+			studyDAO.setQrCodeCreate(vo);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
+		
+		return qrCodeName;
+	}
+
+	@Override
+	public QrCodeVO getQrCodeSearch(String qrCode) {
+		return studyDAO.getQrCodeSearch(qrCode);
+	}
+
+	@Override
+	public String setThumbnailCreate(MultipartFile file) {
+		String res = "";
+		try {
+			String sFileName = javaclassProvide.newNameCreate(2) + "_" + file.getOriginalFilename();
+			
+			// 썸네일 파일이 저장될 경로설정
+			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+			File realFileName = new File(realPath + sFileName);
+			file.transferTo(realFileName);
+			
+			// 썸메일 이미지 생성 저장하기
+			String thumbnailSaveName = realPath + "s_" + sFileName;
+			File thumbnailFile = new File(thumbnailSaveName);
+			
+			int width = 160;
+			int height = 120;
+			Thumbnailator.createThumbnail(realFileName, thumbnailFile, width, height);
+			
+			res = sFileName;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return res;
+	}
+
+	@Override
+	public List<ChartVO> getRecentlyVisitCount(int i) {
+		return studyDAO.getRecentlyVisitCount(i);
+	}
+
+	@Override
+	public List<TransactionVO> getTransactionList() {
+		return studyDAO.getTransactionList();
+	}
+
+	@Override
+	public int setTransactionUserInput(TransactionVO vo) {
+		return studyDAO.setTransactionUserInput(vo);
+	}
+
+	@Override
+	public List<TransactionVO> getTransactionList2() {
+		return studyDAO.getTransactionList2();
+	}
+
+	@Override
+	public void setTransactionUser1Input(TransactionVO vo) {
+		studyDAO.setTransactionUser1Input(vo);
+	}
+
+	@Override
+	public void setTransactionUser2Input(TransactionVO vo) {
+		studyDAO.setTransactionUser2Input(vo);
+	}
+
+	@Transactional
+	@Override
+	public int setTransactionUserTotalInput(TransactionVO vo) {
+		return studyDAO.setTransactionUserTotalInput(vo);
+	}
+
+	/*
+	@Override
+	public String getCurrencyRate(String receiveCountry) {
+    Date today = new Date();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    String strToday = sdf.format(today);
+    String json = "";
+    
+		URL url;
+		try {
+			url = new URL("https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=9p1ZRWn6RsyGLKlXhdbYl1ZQtbs7KoMS&searchdate=2024-07-23&data=AP01");
+			url = new URL("https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=9p1ZRWn6RsyGLKlXhdbYl1ZQtbs7KoMS&searchdate="+strToday+"&data=AP01");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDefaultUseCaches(false);
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type", "application/json");
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+			if ((output = br.readLine()) != null) {
+				//System.out.println("output : " + output);
+			  json += output;
+			}
+			conn.disconnect();
+			
+			// api로 담아온 자료는 json형식의 문자열이기에 json객체로 바꿔준후 각각의 자료를 변수에 담아서 사용(DB의 저장등..)할수 있게한다.
+			System.out.println("json : " + json);
+			
+			
+	    // (방법1) JSON 배열로 변환
+	    JSONArray jsonArray = new JSONArray(json);
+	
+	    // 배열 내의 각 JSON 객체 처리
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	      JSONObject jsonObject = jsonArray.getJSONObject(i);
+	      int result = jsonObject.getInt("result");
+	      String cur_nm = jsonObject.getString("cur_nm");
+	      String ttb = jsonObject.getString("ttb");
+	      String deal_bas_r = jsonObject.getString("deal_bas_r");
+	
+	      // 출력
+	      System.out.println("result " + result);
+	      System.out.println("cur_nm: " + cur_nm);
+	      System.out.println("ttb: " + ttb);
+	      System.out.println("deal_bas_r: " + deal_bas_r);
+	      System.out.println();
+	    }
+	    
+	    // (방법2) DTO(VO)를 이용하는 방법
+			Gson gson = new Gson();
+      // JSON 문자열을 List<Person> 객체로 변환
+      Type type = new TypeToken<List<ExchangeRateVO>>() {}.getType();
+      List<ExchangeRateVO> vos = gson.fromJson(json, type);
+
+      // 리스트 내의 각 객체 처리
+      for (ExchangeRateVO vo : vos) {
+      	System.out.println("cur_unit: " + vo.getCur_unit());
+				System.out.println("cur_nm: " + vo.getCur_nm());
+				System.out.println("ttb: " + vo.getTtb());
+				System.out.println("tts: " + vo.getTts());
+				System.out.println("deal_bas_r: " + vo.getDeal_bas_r());
+				System.out.println();
+      }
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+			
+    return json;
+	}
+  */
+	
+	private String authkey = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=9p1ZRWn6RsyGLKlXhdbYl1ZQtbs7KoMS&data=AP01&searchdate=";
+	
+	@Override
+	public List<ExchangeRateVO> getExchangeRateUnit(String searchdate) {
+		List<ExchangeRateVO> unitVos = new ArrayList<ExchangeRateVO>();
+//		Date today = new Date();
+//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//		String strToday = sdf.format(today);
+//		System.out.println("searchdate : " + searchdate);
+		String json = "";
+		URL url;
+		try {
+			url = new URL(authkey+searchdate);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDefaultUseCaches(false);
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type", "application/json");
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+			if ((output = br.readLine()) != null) {
+				json += output;
+			}
+			conn.disconnect();
+			//System.out.println("json : " + json);
+			// (방법2) DTO(VO)를 이용하는 방법
+			Gson gson = new Gson();
+			// JSON 문자열을 List<Person> 객체로 변환
+			Type type = new TypeToken<List<ExchangeRateVO>>() {}.getType();
+			List<ExchangeRateVO> vos = gson.fromJson(json, type);
+			
+			// 리스트 내의 각 객체 처리
+			for (ExchangeRateVO vo : vos) {
+//      	System.out.println("cur_unit: " + vo.getCur_unit());
+//				System.out.println("cur_nm: " + vo.getCur_nm());
+//				System.out.println();
+				
+				ExchangeRateVO resVo = new ExchangeRateVO();
+				resVo.setCur_nm(vo.getCur_nm());
+				resVo.setCur_unit(vo.getCur_unit());
+				//resVo.setTts(vo.getTts());
+				unitVos.add(resVo);
+			}
+			//System.out.println("unitVos :" + unitVos);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return unitVos;
+	}
+	
+	@Override
+	public String getCurrencyRate(String receiveCountry, String searchdate) {
+//		if(searchdate.equals("")) {
+//	    Date today = new Date();
+//	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//	    String strToday = sdf.format(today);
+//		}
+    String json = "";
+    String tts = "";
+    
+		URL url;
+		try {
+			url = new URL(authkey+searchdate);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDefaultUseCaches(false);
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type", "application/json");
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+			if ((output = br.readLine()) != null) {
+			  json += output;
+			}
+			conn.disconnect();
+			
+			// api로 담아온 자료는 json형식의 문자열이기에 json객체로 바꿔준후 각각의 자료를 변수에 담아서 사용(DB의 저장등..)할수 있게한다.
+			//System.out.println("json : " + json);
+			
+	    // (방법1) JSON 배열로 변환
+	    JSONArray jsonArray = new JSONArray(json);
+	
+	    // 배열 내의 각 JSON 객체 처리
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	      JSONObject jsonObject = jsonArray.getJSONObject(i);
+//	      int result = jsonObject.getInt("result");
+//	      String cur_nm = jsonObject.getString("cur_nm");
+	      String cur_unit = jsonObject.getString("cur_unit");
+	      tts = jsonObject.getString("tts");
+//	      String deal_bas_r = jsonObject.getString("deal_bas_r");
+	
+	      // 출력
+//	      System.out.println("result " + result);
+//	      System.out.println("cur_nm: " + cur_nm);
+//	      System.out.println("ttb: " + ttb);
+//	      System.out.println("deal_bas_r: " + deal_bas_r);
+//	      System.out.println();
+	      
+	      if(cur_unit.equals(receiveCountry)) {
+	      	//System.out.println("tts : " + tts);
+	      	break; 
+	      }
+	    }
+	    
+	    // (방법2) DTO(VO)를 이용하는 방법
+//			Gson gson = new Gson();
+      // JSON 문자열을 List<Person> 객체로 변환
+//      Type type = new TypeToken<List<ExchangeRateVO>>() {}.getType();
+//      List<ExchangeRateVO> vos = gson.fromJson(json, type);
+
+      // 리스트 내의 각 객체 처리
+//      for (ExchangeRateVO vo : vos) {
+//      	System.out.println("cur_unit: " + vo.getCur_unit());
+//				System.out.println("cur_nm: " + vo.getCur_nm());
+//				System.out.println("ttb: " + vo.getTtb());
+//				System.out.println("tts: " + vo.getTts());
+//				System.out.println("deal_bas_r: " + vo.getDeal_bas_r());
+//				System.out.println();
+//      }
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+			
+    return json + "@" + tts;
+	}
+
+	@Override
+	public String getCurrencyRateCompute(String receiveCountry, String sendAmount, String searchdate) {
+//    Date today = new Date();
+//    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//    String strToday = sdf.format(today);
+//		System.out.println("searchdate..: " + searchdate);
+    String json = "";
+    String tts = "";
+		URL url;
+		try {
+			url = new URL(authkey+searchdate);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDefaultUseCaches(false);
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type", "application/json");
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+			if ((output = br.readLine()) != null) {
+			  json += output;
+			}
+			conn.disconnect();
+			
+	    JSONArray jsonArray = new JSONArray(json);
+	
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	      JSONObject jsonObject = jsonArray.getJSONObject(i);
+	      String cur_unit = jsonObject.getString("cur_unit");
+	      tts = jsonObject.getString("tts");
+	      
+	      if(cur_unit.equals(receiveCountry)) break; 
+	    }
+	    
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		//System.out.println("tts : " + tts);
+		//System.out.println("receiveCountry : " + receiveCountry);
+		// 환율계산공식 = (송금액 / 그나라 환율)  , 단, 100원단위로 환율을 제공하는 나라는 ((송금액*100)/그나라환율) 로 계산한다.
+		double doubleTts = 0.0;
+		if(receiveCountry.indexOf("(100)") != -1)	doubleTts = (100.0 / Double.parseDouble(tts.replaceAll(",", ""))) * Double.parseDouble(sendAmount);
+		else doubleTts = Double.parseDouble(sendAmount) / Double.parseDouble(tts.replaceAll(",", ""));
+		//System.out.println("doubleTts : " + doubleTts);
+		return doubleTts + "";
+	}
+	
 }

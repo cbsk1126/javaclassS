@@ -47,6 +47,7 @@ public class HomeController {
 		return "home";
 	}
 	
+  // ckeditor에서의 그림파일 업로드시 수행처리되는 부분
 	@RequestMapping(value = "/imageUpload")
 	public void imageUploadGet(MultipartFile upload, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setCharacterEncoding("utf-8");
@@ -60,8 +61,10 @@ public class HomeController {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
 		oFileName = sdf.format(date) + "_" + oFileName;
 		
+		byte[] bytes = upload.getBytes();
 		FileOutputStream fos = new FileOutputStream(new File(realPath + oFileName));
-		fos.write(upload.getBytes());
+		//fos.write(upload.getBytes());
+		fos.write(bytes);
 		
 		PrintWriter out = response.getWriter();
 		String fileUrl = request.getContextPath() + "/data/ckeditor/" + oFileName;
@@ -71,6 +74,7 @@ public class HomeController {
 		fos.close();
 	}
 	
+	// data폴더 아래쪽의 파일들을 다운받고자 할때 수행하는 메소드(다운받을 경로와 파일명을 넘겨주어 처리한다.)
 	@RequestMapping(value = "/fileDownAction", method = RequestMethod.GET)
 	public void fileDownActionGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String path = request.getParameter("path");
@@ -98,6 +102,12 @@ public class HomeController {
 		
 		// 다운로드 완료후에 서버에 저장된 zip파일을 삭제처리한다.
 		downFile.delete();
+	}
+	
+	// 채팅창 띄우기
+	@RequestMapping(value = "/webSocket/webSocket", method = RequestMethod.GET)
+	public String webSocketGet() {
+    return "webSocket/webSocket";
 	}
 	
 }

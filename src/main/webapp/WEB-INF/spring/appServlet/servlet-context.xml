@@ -3,9 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 	
@@ -21,10 +25,13 @@
 	<resources mapping="/member/**" location="/resources/data/member/" />
 	<resources mapping="/board/**" location="/resources/data/board/" />
 	<resources mapping="/pds/**" location="/resources/data/pds/" />
-	<resources mapping="/photo/**" location="/resources/data/photo/" />
+	<resources mapping="/photoGallery/**" location="/resources/data/photoGallery/" />
 	<resources mapping="/fileUpload/**" location="/resources/data/fileUpload/" />
 	<resources mapping="/ckeditor/**" location="/resources/ckeditor/" />
 	<resources mapping="/study/**" location="/resources/data/study/" />
+	<resources mapping="/qrCode/**" location="/resources/data/qrCode/" />
+	<resources mapping="/thumbnail/**" location="/resources/data/thumbnail/" />
+	<resources mapping="/product/**" location="/resources/data/dbShop/product/" />
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -52,5 +59,13 @@
    -->
 	<!-- bean id는 controller에서 쓸 뷰 네임 -->
 	<!-- <beans:bean id="download" class="com.spring.javaclassS.common.JavaclassProvide.DownloadView" /> -->
+	
+	
+	<!-- Transaction(트랜잭션) 어노테이션 처리를 위한 빈을 컨테이너에 등록처리 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- 스프링 스케줄러 생성 -->
+	<task:scheduler id="jobScheduler" pool-size="10" />
+	<task:annotation-driven scheduler="jobScheduler"/>
 	
 </beans:beans>
