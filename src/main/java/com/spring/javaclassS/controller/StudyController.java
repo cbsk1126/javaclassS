@@ -77,6 +77,7 @@ import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.common.SecurityUtil;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
+import com.spring.javaclassS.vo.BicycleVO;
 import com.spring.javaclassS.vo.ChartVO;
 import com.spring.javaclassS.vo.CrawlingVO;
 import com.spring.javaclassS.vo.CrimeVO;
@@ -85,6 +86,7 @@ import com.spring.javaclassS.vo.ExchangeRateVO;
 import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.MailVO;
 import com.spring.javaclassS.vo.QrCodeVO;
+import com.spring.javaclassS.vo.TagoExpressVO;
 import com.spring.javaclassS.vo.TransactionVO;
 import com.spring.javaclassS.vo.UserVO;
 
@@ -1045,16 +1047,13 @@ public class StudyController {
 		return "study/kakao/kakaoEx1";
 	}
 	
-	// 카카오맵 마커표시/저장 처리
+	// 카카오맵 마커표시 저장 /이미지 저장 처리
 	@ResponseBody
 	@RequestMapping(value = "/kakao/kakaoEx1", method = RequestMethod.POST)
-	public String kakaoEx1Post(KakaoAddressVO vo) {
+	public String kakaoEx1ImagePost(KakaoAddressVO vo) {
 		KakaoAddressVO searchVO = studyService.getKakaoAddressSearch(vo.getAddress());
-		
 		if(searchVO != null) return "0";
-		
 		studyService.setKakaoAddressInput(vo);
-		
 		return "1";
 	}
 	
@@ -1063,7 +1062,7 @@ public class StudyController {
 	public String kakaoEx2Get(Model model,
 			@RequestParam(name="address", defaultValue = "", required = false) String address
 		) {
-		System.out.println("address : " + address);
+		//System.out.println("address : " + address);
 		KakaoAddressVO vo = new KakaoAddressVO();
 		
 		List<KakaoAddressVO> addressVos = studyService.getKakaoAddressList();
@@ -1556,4 +1555,38 @@ public class StudyController {
   	return studyService.getCurrencyRateCompute(receiveCountry, sendAmount, searchdate);
   }
 	
+  // 전국 자전거 대여소(공공API) 폼보기
+  @RequestMapping(value = "/bicycle/bicycle", method = RequestMethod.GET)
+  public String bicycleGet() {
+  	return "study/bicycle/bicycle";
+  }
+  
+  // 전국 자전거 대여소 조회 처리1
+  @ResponseBody
+  @RequestMapping(value = "/bicycle/bicycle", method = RequestMethod.POST)
+  public List<BicycleVO> bicyclePost(int page) {
+  	return studyService.getBicycleData(page);
+  }
+  
+  // 서울시 공공자전거 실시간 대여정보 처리
+  @ResponseBody
+  @RequestMapping(value = "/bicycle/bicycle2", method = RequestMethod.POST)
+  public List<BicycleVO> bicycle2Post() {
+  	return studyService.getBicycleData2();
+  }
+  
+	
+  // 전국 고속버스 시간표검색 폼보기
+  @RequestMapping(value = "/tagoExpress/tagoExpress", method = RequestMethod.GET)
+  public String tagoExpressGet() {
+  	return "study/tagoExpress/tagoExpress";
+  }
+  
+  // 전국 고속버스 정보 조회 처리
+  @ResponseBody
+  @RequestMapping(value = "/tagoExpress/tagoExpress", method = RequestMethod.POST)
+  public List<TagoExpressVO> tagoExpressPost(int page) {
+  	return studyService.getTagoExpressData(page);
+  }
+  
 }

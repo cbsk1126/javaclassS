@@ -4,11 +4,10 @@
 <!-- kakaoMenu.jsp -->
 <div>
   <p>
-    <a href="${ctp}/study/kakao/kakaoEx1" class="btn btn-success">마커표시/저장</a>
+    <a href="${ctp}/study/kakao/kakaoEx1" class="btn btn-success">마커표시/저장/이미지</a>
     <a href="${ctp}/study/kakao/kakaoEx2" class="btn btn-primary">MyDB에 저장된 지명검색</a>
     <a href="${ctp}/study/kakao/kakaoEx3" class="btn btn-secondary">KakaoDB에 저장된 키워드검색</a>
     <a href="${ctp}/study/kakao/kakaoEx4" class="btn btn-info">주변검색</a>
     <a href="${ctp}/study/kakao/kakaoEx5" class="btn btn-warning">거리계산</a>
-    <a href="${ctp}/study/kakao/kakaoEx6" class="btn btn-light">검색지점 사진저장</a>
   </p>
 </div>

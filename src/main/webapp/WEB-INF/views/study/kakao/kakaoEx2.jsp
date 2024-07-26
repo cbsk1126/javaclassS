@@ -60,6 +60,8 @@
 	  </select>
 	  <input type="button" value="지점선택" onclick="addressSearch()"/>
 	  <input type="button" value="검색된지점삭제" onclick="addressDelete()"/>
+	  <input type="button" value="검색된지점이미지출력" onclick="imageShow(${vo.latitude}, ${vo.longitude})"/>
+	  <button type="button" onclick="location.reload();"><span class="material-icons"></span></button>
 	</form>
 	<hr/>
 	<div id="map" style="width:100%;height:500px;"></div>
@@ -106,8 +108,38 @@
 		    //} 
 		//});  
 	</script>
+	
+	<script>
+    // 검색된 지점 이미지 출력
+    function imageShow(latitude, longitude) {
+    	let address = document.getElementById("address").value;
+    	if(address == "") {
+    		alert("선택한 지점의 장소명을 입력하세요");
+    		document.getElementById("address").focus();
+    		return false;
+    	}
+    	
+    	// 이미지 지도에 표시할 마커입니다
+    	var marker = {
+  	    position: new kakao.maps.LatLng(latitude, longitude), 
+  	    text: address // text 옵션을 설정하면 마커 위에 텍스트를 함께 표시할 수 있습니다
+    	};
+
+    	var staticMapContainer  = document.getElementById('staticMap'), // 이미지 지도를 표시할 div
+  	    staticMapOption = { 
+	        center: new kakao.maps.LatLng(latitude, longitude), // 이미지 지도의 중심좌표
+	        level: 3, // 이미지 지도의 확대 레벨
+	        marker: marker // 이미지 지도에 표시할 마커
+  	    };
+
+    	// 이미지 지도를 생성합니다
+    	var staticMap = new kakao.maps.StaticMap(staticMapContainer, staticMapOption);
+    }
+	</script>
 	<hr/>
 	<jsp:include page="kakaoMenu.jsp" />
+	<hr/>
+	<div id="staticMap" style="width:600px; height:500px;"></div>
 </div>
 <p><br/></p>
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />

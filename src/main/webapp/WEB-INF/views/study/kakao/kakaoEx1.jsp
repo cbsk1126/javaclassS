@@ -34,7 +34,74 @@
     		}
     	});
     }
+    
+    // 장소 이미지로 저장하기
+    function addressImageSvae(latitude, longitude) {
+    	let address = document.getElementById("address").value;
+    	if(address == "") {
+    		alert("선택한 지점의 장소명을 입력하세요");
+    		document.getElementById("address").focus();
+    		return false;
+    	}
+    	
+    	// 이미지 지도에 표시할 마커입니다
+    	var marker = {
+    	    position: new kakao.maps.LatLng(latitude, longitude), 
+    	    text: address // text 옵션을 설정하면 마커 위에 텍스트를 함께 표시할 수 있습니다
+    	};
+
+    	var staticMapContainer  = document.getElementById('staticMap'), // 이미지 지도를 표시할 div
+    	    staticMapOption = { 
+    	        center: new kakao.maps.LatLng(latitude, longitude), // 이미지 지도의 중심좌표
+    	        level: 3, // 이미지 지도의 확대 레벨
+    	        marker: marker // 이미지 지도에 표시할 마커
+    	    };
+
+    	// 이미지 지도를 생성합니다
+    	var staticMap = new kakao.maps.StaticMap(staticMapContainer, staticMapOption);
+    	
+	    $("#imageSaveBtn").show();	// 이미지 저장버튼 보이기..
+    	
+    	let query = {
+    			address  : address,
+    			latitude : latitude,
+    			longitude: longitude
+    	}
+    	// 지정된 장소를 저장하려면 아래코드를 실행... 여기선 저장처리하지 않았다.
+    	$.ajax({
+    		url  : "${ctp}/study/kakao/kakaoEx1",
+    		type : "post",
+    		data : query,
+    		success:function(res) {
+    			if(res != "0") alert("선택한 지점이 이미지로 저장되었습니다.");
+    			//else alert("저장 실패~~(같은 지점명이 있습니다. 이름을 변경해서 다시 등록하세요)");
+    			else alert("저장 실패~~");
+    		},
+    		error : function() {
+    			alert("전송오류!");
+    		}
+    	});
+    }
   </script>
+  
+  <!-- 방법1(카카오지도가 하얗게 캡쳐되어 저장된다.) 화면에 표시된 지도를 이미지로 저장하기(html2canvas라이브러리를 CDN으로 지정한다.) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.7/dist/html2canvas.min.js"></script>
+  <script>
+    function imageSaveCheck0() {
+      
+      html2canvas(document.getElementById('staticMap')).then(canvas => {
+        // 캔버스를 이미지로 변환
+        const imgData = canvas.toDataURL('image/png');
+        // 이미지 다운로드 링크 생성
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'staticMap.png';
+        // 링크 클릭하여 이미지 다운로드
+        link.click();
+      });
+    }
+  </script>
+  
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/include/nav.jsp" />
@@ -80,8 +147,8 @@
 		    var message = '클릭한 위치의 위도는 ' + latlng.getLat() + ' 이고, ';
 		    message += '경도는 ' + latlng.getLng() + ' 입니다';
 		    message += '<p>선택한 지점의 장소명 : <input type="text" name="address" id="address"/> &nbsp;';
-		    message += '<input type="button" value="장소저장" onclick="addressSvae('+latlng.getLat()+','+latlng.getLng()+')" class="btn btn-success btn-sm"/></p>';
-		    message += '';
+		    message += '<input type="button" value="장소DB저장" onclick="addressSvae('+latlng.getLat()+','+latlng.getLng()+')" class="btn btn-success btn-sm mr-2"/>';
+		    message += '<input type="button" value="장소이미지만들기" onclick="addressImageSvae('+latlng.getLat()+','+latlng.getLng()+')" class="btn btn-primary btn-sm"/></p>';
 		    
 		    var resultDiv = document.getElementById('clickLatlng'); 
 		    resultDiv.innerHTML = message;
@@ -90,7 +157,31 @@
 	</script>
 	<hr/>
 	<jsp:include page="kakaoMenu.jsp" />
+	<hr/>
+	<!-- 이미지 지도를 표시할 div 입니다 -->
+	<div id="staticMap" style="width:800px;height:500px;"></div>
+	<div id="imageSaveBtn" style="display:none;">
+	  <input type="button" value="표시된지도를 이미지로 저장" onclick="imageSaveCheck()" class="btn btn-info mt-1 mr-2"/>
+	  <input type="button" value="지도 다시검색" onclick="location.href='kakaoEx1';" class="btn btn-warning mt-1"/>
+	</div>
 </div>
+  
+  <!-- 방법2(???) 화면에 표시된 지도를 이미지로 저장하기(html2canvas라이브러리를 CDN으로 지정한다.) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    function imageSaveCheck() {
+    	var container = document.getElementById('map');
+      html2canvas(container).then(function(canvas) {
+        var link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'kakao-map.png';
+        link.click();
+      }).catch(function(error) {
+        console.error('Error capturing the map:', error);
+      });
+    }
+  </script>
+
 <p><br/></p>
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />
 </body>
