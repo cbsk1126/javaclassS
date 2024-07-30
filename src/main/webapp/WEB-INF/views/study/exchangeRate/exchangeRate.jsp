@@ -10,6 +10,7 @@
   <jsp:include page="/WEB-INF/views/include/bs4.jsp" />
   <script>
     'use strict';
+    // 테스트 사이트....
     // https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=9p1ZRWn6RsyGLKlXhdbYl1ZQtbs7KoMS&searchdate=2024-07-22&data=AP01
 
     $(function(){
@@ -148,6 +149,7 @@
 		    <td>
 		      <input type="date" name="searchdate" id="searchdate" class="col-sm-6" value="<%=java.time.LocalDate.now() %>" />
 		      <input type="button" value="적용" onclick="searchdateCheck()" />
+		      <a href="https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=9p1ZRWn6RsyGLKlXhdbYl1ZQtbs7KoMS&searchdate=2024-07-22&data=AP01" target="_blank" class="btn btn-sm btn-darklight" title="임시체크하기">¤</a>
 		    </td>
 	    </tr>
 	    <tr>
