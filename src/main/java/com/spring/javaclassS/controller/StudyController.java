@@ -90,6 +90,8 @@ import com.spring.javaclassS.vo.TagoExpressVO;
 import com.spring.javaclassS.vo.TransactionVO;
 import com.spring.javaclassS.vo.UserVO;
 
+import net.sf.json.JSONArray;
+
 @Controller
 @RequestMapping("/study")
 public class StudyController {
@@ -1107,6 +1109,14 @@ public class StudyController {
 		return "study/kakao/kakaoEx4";
 	}
 	
+	// 카카오맵 : 등록된 지명정보를 클러스터러 활용해서 상세보기
+	@RequestMapping(value = "/kakao/kakaoEx5", method = RequestMethod.GET)
+	public String kakaoEx5Get(Model model) {
+		List<KakaoAddressVO> vos = studyService.getKakaoAddressList();
+		model.addAttribute("jsonVos", JSONArray.fromObject(vos));
+		return "study/kakao/kakaoEx5";
+	}
+	
 	// CSV파일을 MySQL파일로 변환하기폼보기
 	@RequestMapping(value = "/csv/csvForm", method = RequestMethod.GET)
 	public String csvFormGet() {
@@ -1588,5 +1598,12 @@ public class StudyController {
   public List<TagoExpressVO> tagoExpressPost(int page) {
   	return studyService.getTagoExpressData(page);
   }
+  
+	// 달력내역 가져오기
+	@RequestMapping(value = "/calendar/calendar", method = RequestMethod.GET)
+	public String calendarGet() {
+		studyService.getCalendar();
+		return "study/calendar/calendar";
+	}
   
 }

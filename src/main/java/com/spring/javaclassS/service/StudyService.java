@@ -95,4 +95,6 @@ public interface StudyService {
 
 	public List<TagoExpressVO> getTagoExpressData(int page);
 
+	public void getCalendar();
+
 }

@@ -263,6 +263,18 @@ public class MessageController {
 			model.addAttribute("msg", "게시물이 삭제 실패~~");
 			model.addAttribute("url", "/photoGallery/photoGalleryList");
 		}
+		else if(msgFlag.equals("qnaInputOk")) {
+			model.addAttribute("msg", "QnA에 글이 등록 되었습니다.");
+			model.addAttribute("url", "/qna/qnaList");
+		}
+		else if(msgFlag.equals("qnaUpdateOk")) {
+			model.addAttribute("msg", "QnA에 글이 수정 되었습니다.");
+			model.addAttribute("url", "/qna/qnaList");
+		}
+		else if(msgFlag.equals("qnaDeleteOk")) {
+			model.addAttribute("msg", "QnA글이 삭제 되었습니다.");
+			model.addAttribute("url", "/qna/qnaList");
+		}
 		
 		return "include/message";
 	}

@@ -29,4 +29,6 @@ public class MemberVO {
 	private int todayCnt;
 	
 	private int deleteDiff;
+	
+	private int ageGroup;		// 나이 그룹(~대, 10대, 20대~~)
 }

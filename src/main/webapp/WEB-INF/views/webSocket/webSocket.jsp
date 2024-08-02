@@ -166,7 +166,7 @@
 			  		ws.send('2#' + $('#user').val() + '#' + $(this).val() + '@' + chatColor);
 			  		print($('#user').val(), '<font color="'+chatColor+'">'+$(this).val()+'</font>');
 			  		
-			  		event.preventDefault();	
+			  		event.preventDefault();	// 이전 스크립트 내용은 무시하고 아래의 내용을 처리하게 한다.
 			      $('#msg').val('');  		
 			  		$('#msg').focus();
 			  		$('#list').scrollTop($('#list').prop('scrollHeight'));	

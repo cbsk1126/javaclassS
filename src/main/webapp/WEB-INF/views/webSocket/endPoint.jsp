@@ -10,21 +10,30 @@
   <script>
 	  let socket;
 	
+	  // 채팅시작버튼 클릭시 웹소켓에 연결하기..
 	  function startChat() {
 		  $("#endChatBtn").show();
       const username = document.getElementById('username').value;
       if (username) {
+    	  // 1:1채팅처리일때는 웹소켓 접속시 마지막에 유저이름을 가지고 들어오게한다. 즉, 여러명의 유저들이 들어오게되면 변수명이 같기에 배열개념(, 로 분리)으로 들어오게된다.
         socket = new WebSocket('ws://192.168.50.20:9090/javaclassS/webSocket/endPoint/' + username);
 
+        // 상대방 유저가 접속/종료 하거나, 메세지를 날릴때 처리되는 곳(모든 유저들이 메세지를 날리면 무조건 이곳을 통과한다.)
         socket.onmessage = (event) => {
-        	if (event.data.startsWith("USER_LIST:")) {
-            updateUserList(event.data.substring(10));
+        	// 메세지 들어올때 '메세지 data'의 텍스트문자에 'USER_LIST'로 시작할경우는 사용 유저가 새로 '접속'/'종료'한 경우이기에 currentUser콤보박스에 유저의 정보를 삽입/삭제 처리해야 한다.
+      		alert(event.data);
+        	if (event.data.startsWith("USER_LIST:")) {	// 신규 또는 종료 유저의 '삽입/삭제'처리이다.
+            updateUserList(event.data.substring(10));	// USER_LIST이후부터 유저들이 배열(,)로 들어온다.
           } 
-        	else {
-	          const item = document.createElement('li');
-	          item.textContent = event.data;
-	          document.getElementById('messages').appendChild(item);
-	          window.scrollTo(0, document.body.scrollHeight);
+        	else {	// 일반 메세지일경우의 처리이다.
+	          let dt = new Date();
+	          let strToday = dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate()+" "+dt.getHours()+":"+dt.getMinutes();
+	          let item = '<div class="d-flex flex-row mr-2"><span class="youWord p-2 m-1" style="font-size:11px">'+strToday+'<br/>';
+	          item += '<font color="brown">' + event.data.split(":")[0] + ' 로 부터</font><br/><font size="3">' + event.data.split(":")[1] + '</font></span></div>';
+	          document.getElementById('messages').innerHTML += item;
+	          document.getElementById('message').value = '';
+	          document.getElementById('message').focus();
+	          $('#currentMessage').scrollTop($('#currentMessage')[0].scrollHeight);	// 스크롤바를 div마지막에 위치..
         	}
         };
         
@@ -58,33 +67,127 @@
 	  // 사용자가 새롭게 추가되거나 접속종료시에 회원목록을 업데이트 한다.
 	  function updateUserList(userList) {
 	    const users = userList.split(",");
+	    /*
 	    const usersElement = document.getElementById('users');
 	    usersElement.innerHTML = '';  // Clear current list
 	    users.forEach(user => {
-        //const item = document.createElement('li');
         const item = document.createElement('li');
+        item.textContent = user;
+        usersElement.appendChild(item);
+	    });
+	    
+	    const usersTargetElement = document.getElementById('target');
+	    usersTargetElement.innerHTML = '';  // Clear current list
+	    users.forEach(user => {
+        const item2 = document.createElement('option');
+        item2.textContent = user;
+        usersTargetElement.appendChild(item2);
+	    });
+	    */
+	    
+	    const usersElement = document.getElementById('users');
+	    usersElement.innerHTML = '';  // Clear current list
+	    users.forEach(user => {
+        const item = document.createElement('option');
         item.textContent = user;
         usersElement.appendChild(item);
 	    });
 		}
 	
 	  // 폼이 모두 로드되고 나면 아래 루틴을 처리해서 채팅접속자의 아이디를 화면에 출력할수 있게처리한다.
+	  // 아래는 메세지 보내는 사용자의 메세지 출력폼에서 '전송'버튼을 눌렀을때 처리(socket.send())하는 함수이다.
 	  document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('form');
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', (e) => {	// 전송버튼을 누르면 메세지를 화면에 출력시켜준다.
         e.preventDefault();		// 이전 스크립트 내용은 무시하고 아래의 내용을 처리하게 한다.
-        const target = document.getElementById('target').value;
-        const input = document.getElementById('input').value;
-        if (target && input) {
-          socket.send(target + ":" + input);
-          const item = document.createElement('li');
-          item.textContent = "To " + target + ": " + input;
-          document.getElementById('messages').appendChild(item);
-          document.getElementById('input').value = '';
+        const target = document.getElementById('targetUser').value;
+        const message = document.getElementById('message').value;
+        if (target && message) {
+          socket.send(target + ":" + message);
+          //const item = document.createElement('li');
+          //item.textContent = "To " + target + ": " + message;
+          //document.getElementById('messages').appendChild(item);
+          let dt = new Date();
+          let strToday = dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate()+" "+dt.getHours()+":"+dt.getMinutes();
+          let item = '<div class="chattingBox d-flex flex-row-reverse mr-2"><span class="myWord p-2 m-1" style="font-size:11px">'+strToday+'<br/>';
+          item += '<font color="brown">' + target + ' 에게</font><br/><font size="3">' + message + '</font></span></div>';
+          document.getElementById('messages').innerHTML += item;
+          document.getElementById('message').value = '';
+          document.getElementById('message').focus();
+          $('#currentMessage').scrollTop($('#currentMessage')[0].scrollHeight);	// 스크롤바를 div마지막에 위치..
         }
       });
 	  });
+
+	  
+	  // 메세지 보내기(여러줄 처리하도록 함) - 메세지 입력후 엔터키 또는 시프트엔터키에 대한 처리후 메세지를 소켓에 보내주게한다.(socket.send())
+	  $(function(){
+		  $('#message').keyup(function(e) {
+			  e.preventDefault();		// 이전 스크립트 내용은 무시하고 아래의 내용을 처리하게 한다.
+        const target = document.getElementById('targetUser').value;
+        const message = document.getElementById('message').value;
+		  	if (e.keyCode == 13) {
+		  		if(!e.shiftKey) {
+			  		if(target != '' && $('#message').val().trim() != '') {
+				  		let dt = new Date();
+		          let strToday = dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate()+" "+dt.getHours()+":"+dt.getMinutes();
+		          let item = '<div class="chattingBox d-flex flex-row-reverse mr-2"><span class="myWord p-2 m-1" style="font-size:11px">'+strToday+'<br/>';
+		          item += '<font color="brown">' + target + ' 에게</font><br/><font size="3">' + message + '</font></span></div>';
+		          item = item.replaceAll("\n","<br/>");
+		          document.getElementById('messages').innerHTML += item;
+		          document.getElementById('message').value = '';
+		          document.getElementById('message').focus();
+				  		$('#currentMessage').scrollTop($('#currentMessage').prop('scrollHeight'));	// 스크롤바를 div마지막에 위치..
+				  		socket.send(target + ":" + message.replaceAll("\n","<br/>"));
+			  		}
+		  		}
+		  	}
+		  });
+	  });
+	  
+	  // 채팅할 유저 선책하기
+	  /*
+	  function targetUserChange() {
+		  myform.targetUser.value = $("#target").val();
+	  }
+	  */
+	  function userChange() {
+		  myform.targetUser.value = $("#users").val();
+		  myform.message.focus();
+	  }
   </script>
+  <style>
+    li {
+      list-style: none;
+    }
+    
+    #currentUser {
+      width: 30%;
+      height: 430px;
+      float: left;
+      border: 0px solid #ccc;
+      padding: 10px;
+    }
+    #currentMessage {
+      width: 70%;
+      height: 420px;
+      float: left;
+      border: 1px solid #ccc;
+      padding-left: 10px;
+      background-color: #eee;
+      overflow: auto;
+    }
+    .messageBox {
+      clear: both;
+      padding-top: 10px;
+    }
+    .myWord {
+      background-color: yellow;
+    }
+    .youWord {
+      background-color: skyblue;
+    }
+  </style>
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/include/nav.jsp" />
@@ -95,20 +198,29 @@
   <input type="text" id="username" value="${sMid}" readonly />
   <button onclick="startChat()">채팅시작</button>
   <button onclick="endChat()" id="endChatBtn" class="ml-3" style="display:none;">채팅종료</button> <!-- 채팅 종료 버튼 -->
+  <hr/>
   <div id="chat" style="display:none;">
-    <h2>현재 접속중인 사용자</h2>
-      <!-- <ul id="users"></ul> -->
-      <p id="users"></p>
-      <h3>메세지</h3>
-      <ul id="messages"></ul>
-      <form id="form">
-        <input id="target" autocomplete="off" placeholder="받는회원 아이디" />
-        <input id="input" autocomplete="off" placeholder="메세지를 입력하세요." />
-        <button>메세지보내기</button>
-      </form>
+    <form name="myform" id="form">
+	  	<div id="currentUser">
+		    <h5>현재 접속중인 회원</h5>
+		    <select name="users" id="users" size="18" class="form-control" onchange="userChange()"></select>
+	    </div>
+	    <div id="currentMessage">
+	    	<h5>메세지 출력창</h5>
+	    	<div id="messages"></div>
+	    </div>
+      <!-- <input id="target" autocomplete="off" placeholder="받는회원 아이디" /> -->
+      <!-- <select name="target" id="target" onchange="targetUserChange()"></select> -->
+      <div class="messageBox input-group">
+	      <input type="text" name="targetUser" id="targetUser" autocomplete="off" placeholder="접속회원을 선택하세요" readonly  class="input-group-prepend mr-1"/>
+	      <!-- <input type="text" name="message" id="message" autocomplete="off" placeholder="메세지를 입력하세요." class="form-control" /> -->	<!-- autocomplete="off" 브라우저의 자동완성기능을 허용하지 않음 -->
+	      <textarea name="message" id="message" placeholder="메세지를 입력하세요." class="form-control"></textarea>	<!-- autocomplete="off" 브라우저의 자동완성기능을 허용하지 않음 -->
+	      <button class="input-group-append btn btn-success">메세지전송</button>
+      </div>
+    </form>
   </div>
 </div>
-<p><br/></p>
+<p id="footer"><br/></p>
 <jsp:include page="/WEB-INF/views/include/footer.jsp" />
 </body>
 </html>

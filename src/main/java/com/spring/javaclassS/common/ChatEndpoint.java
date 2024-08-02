@@ -21,15 +21,16 @@ public class ChatEndpoint {
 	// 처음 접속시에 수행한다.
   @OnOpen
   public void onOpen(Session session, @PathParam("username") String username) {
-      clients.put(username, session);
+      clients.put(username, session);	// 처음 접속하는 유저의 정보를 clients객에체 담아준다.
+      //System.out.println("clients  ;" + clients);
       broadcastUserList();	// 새롭 접속할때 접속자의 세션을 유저리스트에 담는다.
   }
 
   // 접속 종료시에 수행한다.
   @OnClose
   public void onClose(Session session, @PathParam("username") String username) {
-      clients.remove(username);
-      broadcastUserList();	// 접속종료할때 접속자의 세션을 유저리스트에서 제거한다.
+      clients.remove(username);	// 종료하는 유저의 정보를 clients객에체 제거해준다.
+      broadcastUserList();	// 유저리스트에서 제거한것을 다시 업데이트처리한다.
   }
 
   // 새로운 메세지가 전송되어 왔을때 수행한다.
@@ -40,7 +41,7 @@ public class ChatEndpoint {
       String targetUser = parts[0];
       String msg = parts[1];
 
-      // 메세지를 보낸 접속자의 유저를 세션에 저장한다.
+      // 메세지를 보낸 접속자의 유저와 메세지를 세션에 저장한다.
       Session targetSession = clients.get(targetUser);
       if (targetSession != null) {		// 접속자가 있으면 접속자와 접속자의 메세지를 전송시켜준다.
         targetSession.getBasicRemote().sendText(username + ": " + msg);
@@ -48,7 +49,7 @@ public class ChatEndpoint {
     }
   }
   
-  // 접속한 유저리스트 모두 담기(접속한 세션의 값으로 현재 유저리스트를 구해오고 있다.)
+  // 접속한 유저리스트 모두 담기(접속한 세션의 값으로 현재 유저리스트를 구해오고 있다.) 유저리스트는 구분을 위해서 'USER_LIST:'뒤에 유저명들을 저장시킨다. 예) USER_LIST:admin,hkd1234,kms1234
   private void broadcastUserList() {
     String userList = clients.keySet().stream().collect(Collectors.joining(","));
     for (Session session : clients.values()) {

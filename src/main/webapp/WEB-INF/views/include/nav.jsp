@@ -89,6 +89,7 @@
 	        <a href="${ctp}/study/chart2/chart2Form" class="w3-bar-item w3-button">웹 차트 2</a>
 	        <a href="${ctp}/study/validator/validatorForm" class="w3-bar-item w3-button">Validator 연습</a>
 	        <a href="${ctp}/study/transaction/transactionForm" class="w3-bar-item w3-button">트랜잭션 연습</a>
+	        <a href="${ctp}/study/calendar/calendar" class="w3-bar-item w3-button">인터넷달력</a>
 	        <a href="#" class="w3-bar-item w3-button">스케줄러</a>
 	        <a href="${ctp}/study/csv/csvForm" class="w3-bar-item w3-button">CSV를MySQL로</a>
 	        <a href="${ctp}/study/slideBar/rangeSlider" class="w3-bar-item w3-button">Range Slider</a>
@@ -101,14 +102,14 @@
 	        <a href="${ctp}/dbShop/dbCartList" class="w3-bar-item w3-button">장바구니</a>
 	        <a href="${ctp}/dbShop/dbMyOrder" class="w3-bar-item w3-button">주문(배송)현황</a>
 	        <a href="${ctp}/study/payment/payment" class="w3-bar-item w3-button">결재연습</a>
-	        <a href="${ctp}/" class="w3-bar-item w3-button">QnA</a>
+	        <a href="${ctp}/qna/qnaList" class="w3-bar-item w3-button">QnA</a>
 	        <a href="${ctp}/" class="w3-bar-item w3-button">1:1문의</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
 	      <button onclick="location.href='${ctp}/member/memberMain';" class="w3-padding-large w3-button" title="More">MyPage <i class="fa fa-caret-down"></i></button>     
 	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
-	        <a href="${ctp}/" class="w3-bar-item w3-button">일정관리</a>
+	        <a href="${ctp}/schedule/schedule" class="w3-bar-item w3-button">일정관리</a>
 	        <a href="${ctp}/photoGallery/photoGalleryList" class="w3-bar-item w3-button">Photo Gallery</a>
 	        <a href="${ctp}/" class="w3-bar-item w3-button">DB 채팅</a>
 	        <a href="${ctp}/webSocket/webSocket" class="w3-bar-item w3-button">웹소켓 채팅</a>
@@ -121,6 +122,7 @@
 	      </div>
 	    </div>
     </c:if>
+    <a href="${ctp}/vote/voteInforInsert/" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Vote</a>
     <c:if test="${empty sLevel}">
 	    <a href="${ctp}/member/memberLogin" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Login</a>
 	    <a href="${ctp}/member/memberJoin" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Join</a>
