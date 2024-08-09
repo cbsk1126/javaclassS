@@ -55,6 +55,7 @@
     <a href="${ctp}/" class="w3-bar-item w3-button w3-padding-large">HOME</a>
     <!-- <a href="http://192.168.50.20:9090/javaclassS/" class="w3-bar-item w3-button w3-padding-large">HOME</a> -->
     <a href="${ctp}/guest/guestList" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Guest</a>
+    <a href="${ctp}/notify/topNoticeList" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Notice</a>
     <c:if test="${!empty sLevel}">
 	    <a href="${ctp}/board/boardList" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Board</a>
 	    <a href="${ctp}/pds/pdsList" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Pds</a>
@@ -93,6 +94,7 @@
 	        <a href="#" class="w3-bar-item w3-button">스케줄러</a>
 	        <a href="${ctp}/study/csv/csvForm" class="w3-bar-item w3-button">CSV를MySQL로</a>
 	        <a href="${ctp}/study/slideBar/rangeSlider" class="w3-bar-item w3-button">Range Slider</a>
+	        <a href="${ctp}/errorPage/errorMain" class="w3-bar-item w3-button">Error 연습</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
@@ -121,6 +123,7 @@
 	        <c:if test="${sLevel == 0}"><a href="${ctp}/admin/adminMain" class="w3-bar-item w3-button">관리자메뉴</a></c:if>
 	      </div>
 	    </div>
+	    <a href="${ctp}/survey/surveyList/" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Survey</a>
     </c:if>
     <a href="${ctp}/vote/voteInforInsert/" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Vote</a>
     <c:if test="${empty sLevel}">

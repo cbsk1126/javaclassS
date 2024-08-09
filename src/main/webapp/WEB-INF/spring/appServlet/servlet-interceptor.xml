@@ -40,6 +40,7 @@
 	    <mapping path="/dbShop/**"/>
 	    <mapping path="/photoGallery/**"/>
 	    <mapping path="/qna/**"/>
+	    <mapping path="/survey/**"/>
 	    <mapping path="/pds/pdsList"/>
 	    <mapping path="/pds/pdsTotalDown"/>
 	    <mapping path="/pds/pdsContent"/>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.javaclassS.dao.SurveyDAO">
+  <select id="sdateSearch" resultType="String">
+  	select sdate from survey group by sdate order by sdate desc;
+  </select>
+  
+  <select id="getSurveyList" resultType="com.spring.javaclassS.vo.SurveyVO">
+    <if test='sdate == ""'>
+  		select *,(select count(*) from survey_answer where survey_idx=s.idx) as answerCnt from survey s order by idx desc limit 0,20;
+  	</if>
+    <if test='sdate != ""'>
+  		select *,(select count(*) from survey_answer where survey_idx=s.idx) as answerCnt from survey s where sdate = #{sdate} order by idx desc;
+  	</if>
+  </select>
+  
+  <select id="getSurveyIdx" resultType="com.spring.javaclassS.vo.SurveyVO">
+    select * from survey where idx = #{idx};
+  </select>
+  
+  <select id="getSurveyListAll" resultType="com.spring.javaclassS.vo.SurveyVO">
+  	select * from survey order by sdate limit 50;
+  </select>
+  
+  <select id="getSurveyAdminList" resultType="com.spring.javaclassS.vo.SurveyVO">
+    <!-- <if test='sdate == ""'> -->
+  		select s.*,s.idx as surver_idx,a.*,a.idx as answer_idx from survey s, survey_answer a where s.idx=survey_idx and s.idx=#{idx} order by s.idx;
+  	<!-- </if> -->
+  	<!-- 
+    <if test='sdate != ""'>
+  		select s.*,a.* from survey s, survey_answer a where s.idx=survey_idx and s.idx=#{idx} and s.sdate=#{sdate} order by s.idx;
+  	</if>
+  	 -->
+  </select>
+  
+  <select id="getSurveyResult" resultType="com.spring.javaclassS.vo.SurveyVO">
+  	select * from survey where idx = #{idx};
+  </select>
+  
+  <select id="getResultCalc" resultType="int">
+  	select count(*) from survey_answer where survey_idx = #{idx} and ${strAnswer} = #{i};
+  </select>
+  
+  <select id="getResultAnswer8" resultType="String">
+  	select answer8 from survey_answer where survey_idx = #{idx};
+  </select>
+  
+  <select id="surveyAnswerTotalPrint" resultType="com.spring.javaclassS.vo.SurveyVO">
+    <!-- select * from survey_answer where survey_idx = #{idx}; -->
+    select s.*,s.idx as surver_idx,a.*,a.idx as answer_idx from survey s, survey_answer a where s.idx=survey_idx and s.idx=#{idx} order by s.idx;
+  </select>
+  
+  
+  
+  
+  
+  <insert id="setSurveyInputOk">
+    insert into survey values (default,#{vo.sdate},#{vo.kwajung},#{vo.kwamok},#{vo.kcode},#{vo.danwi},#{vo.wdate},#{vo.question1},#{vo.question2},#{vo.question3},#{vo.question4},#{vo.question5},#{vo.question6},#{vo.question7},#{vo.question8});
+  </insert>
+  
+  <insert id="setSurveyAnswerInput">
+    insert into survey_answer values (default,#{vo.survey_idx},#{vo.answer1},#{vo.answer2},#{vo.answer3},#{vo.answer4},#{vo.answer5},#{vo.answer6},#{vo.answer7},#{vo.answer8});
+  </insert>
+  
+  
+  <delete id="setSurveyAnswerDelete">
+    delete from survey_answer where idx = #{idx};
+  </delete>
+  
+</mapper>
